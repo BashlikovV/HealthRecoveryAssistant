@@ -20,4 +20,6 @@ android {
     }
 }
 
-dependencies { }
+dependencies {
+//    implementation(projects.data.root)
+}

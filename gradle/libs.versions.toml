@@ -37,10 +37,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 [plugins]
 healthrecoveryassistant-android-application = { id = "healthrecoveryassistant.android.application", version = "unspecified" }
 healthrecoveryassistant-android-application-compose = { id = "healthrecoveryassistant.android.application.compose", version = "unspecified" }
-taxifly-android-library = { id = "healthrecoveryassistant.android.library", version = "unspecified"}
-taxifly-android-library-compose = { id = "healthrecoveryassistant.android.library.compose", version = "unspecified" }
+healthrecoveryassistant-android-library = { id = "healthrecoveryassistant.android.library", version = "unspecified"}
+healthrecoveryassistant-android-library-compose = { id = "healthrecoveryassistant.android.library.compose", version = "unspecified" }
 healthrecoveryassistant-android-tests = { id = "healthrecoveryassistant.android.library.tests", version = "unspecified" }
-taxifly-jwm-library = { id = "healthrecoveryassistant.jvm.library", version = "unspecified" }
+healthrecoveryassistant-jwm-library = { id = "healthrecoveryassistant.jvm.library", version = "unspecified" }
 
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
