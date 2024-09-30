@@ -1,4 +1,7 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,3 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "HealthRecoveryAssistant"
 include(":app")
+include(":core")
+include(":data")
+include(":features")
