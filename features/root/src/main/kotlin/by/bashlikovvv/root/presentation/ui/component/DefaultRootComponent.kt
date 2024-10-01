@@ -14,7 +14,6 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
 
 class DefaultRootComponent(
     componentContext: ComponentContext,

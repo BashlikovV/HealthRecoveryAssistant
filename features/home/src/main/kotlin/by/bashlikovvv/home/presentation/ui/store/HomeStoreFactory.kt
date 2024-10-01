@@ -23,9 +23,7 @@ class HomeStoreFactory(
             }
         }
 
-    sealed class Msg { }
+    sealed class Msg
 
-    sealed class Action {
-        data object Init : Action()
-    }
+    sealed class Action
 }
