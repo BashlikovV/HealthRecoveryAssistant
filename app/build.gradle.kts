@@ -21,5 +21,9 @@ android {
 }
 
 dependencies {
-//    implementation(projects.data.root)
+    implementation(projects.core.domain)
+    implementation(projects.core.ui)
+    implementation(projects.data.common)
+    implementation(projects.data.home)
+    implementation(projects.features.root)
 }
