@@ -31,7 +31,7 @@ plugins {
 }
 
 android {
-    namespace = "by.bashlikovvv.$moduleNameLowercase"
+    namespace = "by.bashlikovvv.data.$moduleNameLowercase"
 }
 
 dependencies {

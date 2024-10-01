@@ -3,9 +3,12 @@ plugins {
 }
 
 android {
-    namespace = "by.bashlikovvv.common"
+    namespace = "by.bashlikovvv.data.common"
 }
 
 dependencies {
-    //TODO add needed dependencies
+    api(projects.core.domain)
+
+    api(libs.koin.android)
+    implementation(libs.play.services.wearable)
 }
