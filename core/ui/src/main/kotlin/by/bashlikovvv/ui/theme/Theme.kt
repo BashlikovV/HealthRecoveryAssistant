@@ -1,6 +1,5 @@
-package by.bashlikovvv.healthrecoveryassistant.ui.theme
+package by.bashlikovvv.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,7 +8,13 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import by.bashlikovvv.ui.res.language.LanguageUiType
+import by.bashlikovvv.ui.res.language.LocalAppLanguage
+import by.bashlikovvv.ui.res.language.fetchAppLanguage
+import by.bashlikovvv.ui.res.strings.LocalAppStrings
+import by.bashlikovvv.ui.res.strings.fetchCoreStrings
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -36,8 +41,8 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun HealthRecoveryAssistantTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    languageUiType: LanguageUiType = LanguageUiType.EN,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -49,10 +54,17 @@ fun HealthRecoveryAssistantTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+    val appLanguage = fetchAppLanguage(languageUiType)
+    val appStrings = fetchCoreStrings(appLanguage)
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+        typography = Typography
+    ) {
+        CompositionLocalProvider(
+            LocalAppLanguage provides appLanguage,
+            LocalAppStrings provides appStrings,
+            content = content
+        )
+    }
 }
