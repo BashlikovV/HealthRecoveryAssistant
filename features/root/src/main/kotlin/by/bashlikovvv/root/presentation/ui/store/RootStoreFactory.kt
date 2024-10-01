@@ -18,7 +18,9 @@ class RootStoreFactory(
             reducer = reducerImpl,
         ) { }
 
-    sealed class Msg
+    sealed class Msg {
+        data class Error(val th: Throwable) : Msg()
+    }
 
     private val reducerImpl =
         Reducer<State, Msg> { msg ->
