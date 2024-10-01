@@ -1,6 +1,5 @@
 package by.bashlikovvv.home.presentation.ui.store
 
-import android.content.Context
 import android.os.Parcelable
 import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
 import com.arkivanov.mvikotlin.core.store.Store
@@ -12,10 +11,6 @@ interface HomeStore : Store<Intent, State, Label> {
             val duration: Long,
             val amplitude: Int,
         ) : Intent()
-
-        data class Initialize(val context: Context) : Intent()
-
-        data object Destroy : Intent()
     }
 
     @Parcelize

@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import by.bashlikovvv.home.presentation.ui.HomeContent
+import by.bashlikovvv.home.presentation.ui.store.HomeStore
 import by.bashlikovvv.root.presentation.ui.component.RootComponent
 import by.bashlikovvv.root.presentation.ui.store.RootStore
 import by.bashlikovvv.ui.composable.ScreenContent
@@ -24,6 +27,11 @@ fun RootContent(
         contractProvider = component.store,
         initialState = RootStore.State()
     ) { state, _ ->
+        val context = LocalContext.current
+        DisposableEffect(Unit) {
+            dispatchIntent(RootStore.Intent.Initialize(context))
+            onDispose { dispatchIntent(RootStore.Intent.Destroy) }
+        }
         HealthRecoveryAssistantTheme(
             languageUiType = state.languageUiType
         ) {

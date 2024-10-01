@@ -13,19 +13,18 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.home.presentation.ui.store.HomeStore
 import by.bashlikovvv.ui.composable.ScreenContent
+import by.bashlikovvv.ui.res.AppRes
 
 @Composable
 fun HomeContent(
@@ -36,11 +35,6 @@ fun HomeContent(
         contractProvider = component.store,
         initialState = HomeStore.State()
     ) { state, _ ->
-        val context = LocalContext.current
-        DisposableEffect(Unit) {
-            dispatchIntent(HomeStore.Intent.Initialize(context))
-            onDispose { dispatchIntent(HomeStore.Intent.Destroy) }
-        }
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -58,11 +52,11 @@ fun HomeContent(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("duration: ")
+                    Text("${AppRes.strings.duration}: ")
                     TextField(
                         value = durationText,
                         onValueChange = { durationText = it },
-                        placeholder = { Text("duration time in long") },
+                        placeholder = { Text(AppRes.strings.durationTimeInLong) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         )
@@ -74,11 +68,11 @@ fun HomeContent(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("amplitude: ")
+                    Text("${AppRes.strings.amplitude}: ")
                     TextField(
                         value = amplitudeText,
                         onValueChange = { amplitudeText = it },
-                        placeholder = { Text("amplitude in int (max 255)") },
+                        placeholder = { Text(AppRes.strings.amplitudeInIntMax255) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         )
@@ -94,7 +88,7 @@ fun HomeContent(
                         )
                     }
                 ) {
-                    Text("send vibrate")
+                    Text(AppRes.strings.sendVibrate)
                 }
             }
         }
