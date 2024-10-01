@@ -9,8 +9,7 @@ class HomeStoreFactory(
     private val storeFactory: StoreFactory,
 ) {
     fun create(): HomeStore = object : HomeStore, Store<Intent, State, Label> by storeFactory.create(
-        name = "",
-        autoInit = false,
+        name = STORE_NAME,
         initialState = State(),
         executorFactory = ::HomeStoreExecutor,
         reducer = reducerImpl
@@ -25,5 +24,7 @@ class HomeStoreFactory(
 
     sealed class Msg
 
-    sealed class Action
+    companion object {
+        const val STORE_NAME ="HomeStore"
+    }
 }

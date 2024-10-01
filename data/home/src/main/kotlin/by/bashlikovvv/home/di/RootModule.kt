@@ -1,11 +1,11 @@
 package by.bashlikovvv.home.di
 
-import by.bashlikovvv.home.data.remote.RootRepository
+import by.bashlikovvv.home.data.remote.HomeRepository
 import org.koin.dsl.module
 
 val rootModule = module {
     single {
-        RootRepository(
+        HomeRepository(
             appDispatchers = get(),
             wearableRemoteDataSource = get()
         )
