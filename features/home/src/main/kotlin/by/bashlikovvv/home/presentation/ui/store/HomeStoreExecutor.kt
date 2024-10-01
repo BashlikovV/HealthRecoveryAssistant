@@ -15,8 +15,6 @@ class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Nothing, State, Msg, Lab
     override fun executeIntent(intent: Intent, getState: () -> State) {
         when (intent) {
             is Intent.Vibrate -> simpleVibrate(intent)
-            is Intent.Initialize -> homeRepository.initialize(intent.context)
-            is Intent.Destroy -> homeRepository.destroy()
         }
     }
 

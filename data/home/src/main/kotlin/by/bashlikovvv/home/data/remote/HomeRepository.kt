@@ -1,6 +1,5 @@
 package by.bashlikovvv.home.data.remote
 
-import android.content.Context
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
 import by.bashlikovvv.domain.base.AppDispatchers
 import by.bashlikovvv.domain.model.WearableEvent
@@ -13,12 +12,6 @@ class HomeRepository(
     private val wearableRemoteDataSource: WearableRemoteDataSource,
 ) {
     private val ioDispatcher = appDispatchers.io
-
-    fun initialize(context: Context) {
-        wearableRemoteDataSource.initialize(context)
-    }
-
-    fun destroy() = wearableRemoteDataSource.destroy()
 
     fun dispatchEvent(wearableEvent: WearableEvent) {
         CoroutineScope(ioDispatcher).launch {

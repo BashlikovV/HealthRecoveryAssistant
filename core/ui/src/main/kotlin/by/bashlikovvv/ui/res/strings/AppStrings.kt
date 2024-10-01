@@ -6,7 +6,11 @@ import by.bashlikovvv.ui.res.language.AppLanguage
 
 @Immutable
 data class AppStrings(
-    val helloText: String,
+    val duration: String,
+    val durationTimeInLong: String,
+    val amplitude: String,
+    val amplitudeInIntMax255: String,
+    val sendVibrate: String,
 )
 
 val LocalAppStrings = staticCompositionLocalOf<AppStrings> {
