@@ -24,7 +24,7 @@ class WearableRemoteDataSource {
     suspend fun putData(
         path: String,
         requestBuilder: WearableRequestBuilderScope.() -> Unit,
-    ) = suspendCancellableCoroutine<Boolean> { continuation ->
+    ) = suspendCancellableCoroutine { continuation ->
         dataClient?.putDataItem(
             PutDataMapRequest.create(path).run {
                 WearableRequestBuilderScope.Base(this).requestBuilder()
