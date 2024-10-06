@@ -11,6 +11,8 @@ data class AppStrings(
     val amplitude: String,
     val amplitudeInIntMax255: String,
     val sendVibrate: String,
+    val loadFile: String,
+    val scheduleFileData: String,
 )
 
 val LocalAppStrings = staticCompositionLocalOf<AppStrings> {

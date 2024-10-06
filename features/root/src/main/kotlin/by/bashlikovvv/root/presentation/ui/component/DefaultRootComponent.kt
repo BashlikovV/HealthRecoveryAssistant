@@ -34,6 +34,10 @@ class DefaultRootComponent(
         RootStoreFactory(storeFactory).create()
     }
 
+    override fun dispatchIntent(intent: RootStore.Intent) {
+        store.accept(intent)
+    }
+
     private fun child(config: Config, childComponentContext: ComponentContext): Child =
         when(config) {
             Config.Home -> Child.Home(homeComponent(childComponentContext))

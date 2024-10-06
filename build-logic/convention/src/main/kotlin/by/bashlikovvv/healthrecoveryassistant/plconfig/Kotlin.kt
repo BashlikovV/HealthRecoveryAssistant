@@ -41,6 +41,7 @@ internal fun Project.configureKotlinJvm() {
 
 private fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
+//        compilerOptions.apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_17.toString()
         }

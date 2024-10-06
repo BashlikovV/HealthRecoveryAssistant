@@ -8,12 +8,16 @@ espressoCore = "3.6.1"
 compose = "1.6.11"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
-composeBom = "2024.09.02"
+composeBom = "2024.09.03"
 desugar_jdk_libs = "2.1.2"
 mvikotlin = "3.3.0"
 decompose = "3.1.0"
 koin = "3.5.6"
 playServicesWearable = "18.2.0"
+room = "2.6.1"
+ksp = "2.0.10-1.0.24"
+kotlinx-serialization-json = "1.7.1"
+workRuntimeKtx = "2.9.1"
 
 [libraries]
 # Plugins for composite build
@@ -51,6 +55,16 @@ mvikotlin-extensions-coroutines = { module = "com.arkivanov.mvikotlin:mvikotlin-
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 play-services-wearable = { module = "com.google.android.gms:play-services-wearable", version.ref = "playServicesWearable" }
 
+# Serialization
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+
+# Room
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+
 [plugins]
 healthrecoveryassistant-android-application = { id = "healthrecoveryassistant.android.application", version = "unspecified" }
 healthrecoveryassistant-android-application-compose = { id = "healthrecoveryassistant.android.application.compose", version = "unspecified" }
@@ -63,3 +77,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

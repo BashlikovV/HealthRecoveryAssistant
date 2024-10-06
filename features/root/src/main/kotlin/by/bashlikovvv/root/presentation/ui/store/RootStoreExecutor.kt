@@ -16,6 +16,7 @@ class RootStoreExecutor : BaseCoroutineExecutor<Intent, Nothing, State, Msg, Lab
         when (intent) {
             is Intent.Initialize -> initialize(intent.context)
             is Intent.Destroy -> destroy()
+            is Intent.OnNewIntent -> onNewIntent(intent.intent)
         }
     }
 
@@ -23,6 +24,12 @@ class RootStoreExecutor : BaseCoroutineExecutor<Intent, Nothing, State, Msg, Lab
         safeAction = { wearableRepository.initialize(context) },
         onError = { th: Throwable -> dispatch(Msg.Error(th)) }
     )
+
+    private fun onNewIntent(intent: android.content.Intent) {
+        if (intent.action == android.content.Intent.ACTION_VIEW) {
+            intent.data?.let {  }
+        }
+    }
 
     private fun destroy() {
         wearableRepository.destroy()

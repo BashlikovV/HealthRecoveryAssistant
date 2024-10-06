@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.healthrecoveryassistant.android.library)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -8,4 +10,5 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.kotlinx.serialization.json)
 }
