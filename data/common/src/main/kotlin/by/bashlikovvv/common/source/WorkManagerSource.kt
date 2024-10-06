@@ -6,7 +6,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import by.bashlikovvv.common.worker.WearableEventsWorker
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class WorkManagerSource(
@@ -28,16 +27,19 @@ class WorkManagerSource(
         delay: Long
     ) {
         WorkManager.getInstance(context)
-            .enqueue(
-                OneTimeWorkRequestBuilder<WearableEventsWorker>()
-//                    .setId(UNIQUE_WORK_UUID)
-                    .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                    .build()
-            )
+            .apply {
+                cancelAllWorkByTag(UNIQUE_WORK_TAG)
+                enqueue(
+                    OneTimeWorkRequestBuilder<WearableEventsWorker>()
+                        .addTag(UNIQUE_WORK_TAG)
+                        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                        .build()
+                )
+            }
     }
 
     companion object {
-        val UNIQUE_WORK_UUID = UUID.fromString("421babd4-9739-4209-98e6-9c2ef548a664")
+        const val UNIQUE_WORK_TAG = "421babd4-9739-4209-98e6-9c2ef548a664"
     }
 }
 

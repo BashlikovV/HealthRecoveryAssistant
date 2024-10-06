@@ -31,10 +31,11 @@ class HomeRepository(
         context: Context,
         events: WearableEvents
     ) {
+        wearableEventsLocalDataSource.clear()
         wearableEventsLocalDataSource.addWearableEvents(events)
         enqueueWearableWork(
             context = context,
-            event = events.events.first()
+            event = events.events.minBy { it.scheduledTime }
         )
     }
 

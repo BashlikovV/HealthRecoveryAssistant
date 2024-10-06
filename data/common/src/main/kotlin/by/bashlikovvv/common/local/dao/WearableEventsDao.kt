@@ -33,9 +33,22 @@ interface WearableEventsDao {
     @[
         Transaction
         Query(
-            """DELETE 
-               FROM ${WearableEventsTable.TABLE_NAME};"""
+            """DELETE FROM ${WearableEventsTable.TABLE_NAME};"""
         )
     ]
     suspend fun clearEvents()
+
+    @[
+        Transaction
+        Query(
+            """DELETE FROM ${WearableEventsTable.TABLE_NAME} 
+               WHERE ${WearableEventsTable.COLUMN_ID} = (
+                   SELECT ${WearableEventsTable.COLUMN_ID} 
+                   FROM ${WearableEventsTable.TABLE_NAME} 
+                   ORDER BY ${WearableEventsTable.COLUMN_SCHEDULED_TIME} 
+                   LIMIT 1
+               );"""
+        )
+    ]
+    suspend fun removeLatestWearableEvent(): Int
 }

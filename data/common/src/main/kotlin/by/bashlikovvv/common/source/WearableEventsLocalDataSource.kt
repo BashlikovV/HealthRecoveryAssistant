@@ -74,6 +74,18 @@ class WearableEventsLocalDataSource(
         }
     }
 
+    suspend fun removeLatestEvent(): BaseResult<Unit> = withContext(ioDispatcher) {
+        try {
+            if (wearableEventsDao.removeLatestWearableEvent() == DatabaseResult.SUCCESS) {
+                BaseResult.Success(Unit)
+            } else {
+                BaseResult.Failure(NullPointerException())
+            }
+        } catch (e: IOException) {
+            BaseResult.Failure(e)
+        }
+    }
+
     suspend fun removeEventById(id: Long): BaseResult<Unit> = withContext(ioDispatcher) {
         try {
             val result = wearableEventsDao.removeWearableEventById(id)
@@ -85,6 +97,10 @@ class WearableEventsLocalDataSource(
         } catch (e: IOException) {
             BaseResult.Failure(e)
         }
+    }
+
+    suspend fun clear() = withContext(ioDispatcher) {
+        wearableEventsDao.clearEvents()
     }
 
     companion object {

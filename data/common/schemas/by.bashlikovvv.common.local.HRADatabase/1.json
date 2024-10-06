@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "160cfce0947001fb5ea637a63904d4fc",
+    "identityHash": "a96879844acea78f39bbf62a3d847d07",
     "entities": [
       {
         "tableName": "wearable_events",
@@ -94,12 +94,12 @@
     "views": [
       {
         "viewName": "WearableEventView",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT wearable_events_id, wearable_events_scheduled_time, wearable_tasks_vibration_events, wearable_tasks_notification_text \n           FROM wearable_events\n           JOIN wearable_tasks\n           ON wearable_events_task_description = wearable_tasks_id\n           ORDER BY wearable_events_scheduled_time DESC\n           LIMIT 1;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT wearable_events_id, wearable_events_scheduled_time, wearable_tasks_vibration_events, wearable_tasks_notification_text \n           FROM wearable_events\n           JOIN wearable_tasks\n           ON wearable_events_task_description = wearable_tasks_id\n           ORDER BY wearable_events_scheduled_time \n           LIMIT 1;"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '160cfce0947001fb5ea637a63904d4fc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a96879844acea78f39bbf62a3d847d07')"
     ]
   }
 }

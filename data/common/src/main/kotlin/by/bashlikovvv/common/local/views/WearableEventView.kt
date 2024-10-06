@@ -10,7 +10,7 @@ import by.bashlikovvv.common.local.contract.HRADRoomContract.WearableTasksTable
            FROM ${WearableEventsTable.TABLE_NAME}
            JOIN ${WearableTasksTable.TABLE_NAME}
            ON ${WearableEventsTable.COLUMN_TASK_DESCRIPTION_KEY} = ${WearableTasksTable.COLUMN_ID}
-           ORDER BY ${WearableEventsTable.COLUMN_SCHEDULED_TIME} DESC
+           ORDER BY ${WearableEventsTable.COLUMN_SCHEDULED_TIME} 
            LIMIT 1;"""
 )
 data class WearableEventView(
