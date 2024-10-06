@@ -2,7 +2,6 @@ package by.bashlikovvv.root.presentation.ui.store
 
 import android.content.Context
 import android.os.Parcelable
-import androidx.activity.result.ActivityResult
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Intent
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Label
 import by.bashlikovvv.root.presentation.ui.store.RootStore.State

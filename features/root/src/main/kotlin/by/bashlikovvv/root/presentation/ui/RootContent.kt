@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import by.bashlikovvv.home.presentation.ui.HomeContent
 import by.bashlikovvv.root.presentation.ui.component.RootComponent

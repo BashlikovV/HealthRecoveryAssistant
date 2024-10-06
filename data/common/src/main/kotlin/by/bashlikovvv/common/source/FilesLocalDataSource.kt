@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.net.Uri
 import by.bashlikovvv.common.model.WearableEventsDbo
 import by.bashlikovvv.domain.base.AppDispatchers
-import by.bashlikovvv.domain.model.WearableEvents
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader
