@@ -14,6 +14,8 @@ interface RootStore : Store<Intent, State, Label> {
         data class Initialize(val context: Context) : Intent()
 
         data object Destroy : Intent()
+
+        data class OnNewIntent(val intent: android.content.Intent) : Intent()
     }
 
     @Parcelize

@@ -1,5 +1,6 @@
 package by.bashlikovvv.home.presentation.ui.store
 
+import by.bashlikovvv.domain.model.WearableEvents
 import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
@@ -11,6 +12,7 @@ class HomeStoreFactory(
     fun create(): HomeStore = object : HomeStore, Store<Intent, State, Label> by storeFactory.create(
         name = STORE_NAME,
         initialState = State(),
+        autoInit = true,
         executorFactory = ::HomeStoreExecutor,
         reducer = reducerImpl
     ) { }
@@ -18,11 +20,16 @@ class HomeStoreFactory(
     private val reducerImpl =
         Reducer<State, Msg> { msg ->
             when (msg) {
-                else -> this
+                is Msg.HRAFileData -> this.copy(fileContent = msg.data, fileName = msg.name)
             }
         }
 
-    sealed class Msg
+    sealed class Msg {
+        data class HRAFileData(
+            val name: String,
+            val data: WearableEvents?,
+        ) : Msg()
+    }
 
     companion object {
         const val STORE_NAME ="HomeStore"

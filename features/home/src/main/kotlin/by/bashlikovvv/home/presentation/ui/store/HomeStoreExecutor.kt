@@ -1,12 +1,14 @@
 package by.bashlikovvv.home.presentation.ui.store
 
+import android.app.Activity.RESULT_OK
+import android.content.Context
+import androidx.activity.result.ActivityResult
+import by.bashlikovvv.domain.base.BaseResult
+import by.bashlikovvv.domain.model.WearableEvents
 import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
 import by.bashlikovvv.home.presentation.ui.store.HomeStoreFactory.*
+import by.bashlikovvv.home.repository.HomeRepository
 import by.bashlikovvv.ui.base.BaseCoroutineExecutor
-import by.bashlikovvv.home.data.remote.HomeRepository
-import by.bashlikovvv.domain.model.WearableEvent
-import by.bashlikovvv.domain.model.VibrationDescriptor
-import by.bashlikovvv.domain.model.VibrationAction
 import org.koin.core.component.inject
 
 class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Nothing, State, Msg, Label>() {
@@ -14,54 +16,37 @@ class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Nothing, State, Msg, Lab
 
     override fun executeIntent(intent: Intent, getState: () -> State) {
         when (intent) {
-            is Intent.Vibrate -> simpleVibrate(intent)
+            is Intent.OnActivityResult -> onActivityResultIntent(intent.activityResult)
+            is Intent.ScheduleFileData -> onScheduleFileDataIntent(intent.events, intent.context)
         }
     }
 
-    private fun simpleVibrate(intent: Intent.Vibrate) {
-        homeRepository.dispatchEvent(testVibration)
+    private fun onActivityResultIntent(result: ActivityResult) {
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let {
+                launchIO(
+                    safeAction = {
+                        when(val rResult = homeRepository.openHRAFile(it)) {
+                            is BaseResult.Success -> dispatchOnMainThread(
+                                Msg.HRAFileData(
+                                    name = result.data?.data?.lastPathSegment ?: "null",
+                                    data = rResult.data
+                                )
+                            )
+                            is BaseResult.Failure -> Unit
+                        }
+                    }
+                )
+            }
+        }
     }
 
-    private val testVibration = WearableEvent(
-        vibrationDescriptor = VibrationDescriptor(
-            actions = listOf(
-                VibrationAction(
-                    duration = 100,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 100,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 100,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 1000,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 1000,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 1000,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 100,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 100,
-                    amplitude = 255U,
-                ),
-                VibrationAction(
-                    duration = 100,
-                    amplitude = 255U,
-                ),
-            )
+    private fun onScheduleFileDataIntent(
+        events: WearableEvents,
+        context: Context,
+    ) {
+        launchIO(
+            safeAction = { homeRepository.scheduleHRAFileData(context, events) }
         )
-    )
+    }
 }

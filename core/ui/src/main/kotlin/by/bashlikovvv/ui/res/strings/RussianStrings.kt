@@ -6,4 +6,6 @@ internal val russianStrings = AppStrings(
     amplitude = "амплитуда",
     amplitudeInIntMax255 = "амплитуда (0..255)",
     sendVibrate = "воспроизвести вибрацию",
+    loadFile = "загрузить файл",
+    scheduleFileData = "запланировать данные из файла"
 )

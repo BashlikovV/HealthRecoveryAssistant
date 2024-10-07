@@ -1,10 +1,12 @@
 package by.bashlikovvv.ui.base
 
+import android.util.Log
 import by.bashlikovvv.ui.coroutines.CoroutineBlock
 import by.bashlikovvv.ui.coroutines.CoroutineManager
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -14,7 +16,7 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
 
     fun launchIO(
         safeAction: CoroutineBlock,
-        onError: (Throwable) -> Unit,
+        onError: (Throwable) -> Unit = defaultOnErrorBlock,
     ): Job = coroutineManager.launchIO(
         scope = scope,
         block = safeAction,
@@ -23,7 +25,7 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
 
     fun launchMain(
         safeAction: CoroutineBlock,
-        onError: (Throwable) -> Unit,
+        onError: (Throwable) -> Unit = defaultOnErrorBlock,
     ): Job = coroutineManager.launchMain(
         scope = scope,
         block = safeAction,
@@ -33,11 +35,21 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     fun launchCustom(
         safeAction: CoroutineBlock,
         customDispatcher: CoroutineDispatcher,
-        onError: (Throwable) -> Unit,
+        onError: (Throwable) -> Unit = defaultOnErrorBlock,
     ): Job = coroutineManager.launchCustom(
         scope = scope,
         block = safeAction,
         customDispatcher = customDispatcher,
         onError = onError
     )
+
+    suspend fun dispatchOnMainThread(msg: Message) = withContext(coroutineManager.uiDispatcher) {
+        dispatch(msg)
+    }
+
+    companion object {
+        private val defaultOnErrorBlock: (Throwable) -> Unit = { th ->
+            Log.e("MYTAG", "exception in coroutine block", th)
+        }
+    }
 }

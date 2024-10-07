@@ -6,4 +6,6 @@ internal val englishStrings = AppStrings(
     amplitude = "amplitude",
     amplitudeInIntMax255 = "amplitude in int (max 255)",
     sendVibrate = "send vibrate",
+    loadFile = "load file",
+    scheduleFileData = "schedule file data",
 )

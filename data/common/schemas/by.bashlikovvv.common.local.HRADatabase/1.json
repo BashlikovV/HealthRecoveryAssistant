@@ -1,0 +1,105 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "a96879844acea78f39bbf62a3d847d07",
+    "entities": [
+      {
+        "tableName": "wearable_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wearable_events_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `wearable_events_scheduled_time` INTEGER NOT NULL, `wearable_events_task_description` INTEGER NOT NULL, FOREIGN KEY(`wearable_events_task_description`) REFERENCES `wearable_tasks`(`wearable_tasks_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "wearable_events_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scheduledTime",
+            "columnName": "wearable_events_scheduled_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskDescription",
+            "columnName": "wearable_events_task_description",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "wearable_events_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_wearable_events_wearable_events_task_description",
+            "unique": false,
+            "columnNames": [
+              "wearable_events_task_description"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_wearable_events_wearable_events_task_description` ON `${TABLE_NAME}` (`wearable_events_task_description`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "wearable_tasks",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "wearable_events_task_description"
+            ],
+            "referencedColumns": [
+              "wearable_tasks_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "wearable_tasks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`wearable_tasks_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `wearable_tasks_vibration_events` TEXT NOT NULL, `wearable_tasks_notification_text` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "wearable_tasks_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vibrationEvents",
+            "columnName": "wearable_tasks_vibration_events",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notificationText",
+            "columnName": "wearable_tasks_notification_text",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "wearable_tasks_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [
+      {
+        "viewName": "WearableEventView",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT wearable_events_id, wearable_events_scheduled_time, wearable_tasks_vibration_events, wearable_tasks_notification_text \n           FROM wearable_events\n           JOIN wearable_tasks\n           ON wearable_events_task_description = wearable_tasks_id\n           ORDER BY wearable_events_scheduled_time \n           LIMIT 1;"
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a96879844acea78f39bbf62a3d847d07')"
+    ]
+  }
+}

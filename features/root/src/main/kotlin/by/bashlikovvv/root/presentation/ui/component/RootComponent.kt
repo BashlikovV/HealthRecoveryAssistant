@@ -10,6 +10,8 @@ interface RootComponent {
 
     val store: RootStore
 
+    fun dispatchIntent(intent: RootStore.Intent)
+
     sealed class Child {
         data class Home(val component: HomeComponent) : Child()
     }
