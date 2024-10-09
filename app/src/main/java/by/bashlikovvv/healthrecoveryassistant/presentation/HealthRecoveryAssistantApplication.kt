@@ -4,6 +4,7 @@ import android.app.Application
 import by.bashlikovvv.common.source.WorkManagerSource
 import by.bashlikovvv.healthrecoveryassistant.di.coreModule
 import by.bashlikovvv.healthrecoveryassistant.di.dataModule
+import by.bashlikovvv.healthrecoveryassistant.di.databaseModule
 import by.bashlikovvv.home.di.homeModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -23,6 +24,7 @@ class HealthRecoveryAssistantApplication : Application() {
             androidContext(this@HealthRecoveryAssistantApplication)
             modules(
                 coreModule,
+                databaseModule,
                 dataModule,
                 homeModule,
             )

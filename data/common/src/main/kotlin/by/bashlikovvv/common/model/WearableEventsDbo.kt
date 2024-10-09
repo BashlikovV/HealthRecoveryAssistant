@@ -16,13 +16,13 @@ data class WearableEventDbo(
 
 @Serializable
 data class TaskDescriptionDbo(
-    @SerialName("vibrationDescription") val vibrationDescriptionDbo: VibrationDescriptionDbo
+    @SerialName("vibrationDescription") val vibrationDescriptionDbo: VibrationDescriptionDbo,
+    @SerialName("notificationText") val notificationText: String?,
 )
 
 @Serializable
 data class VibrationDescriptionDbo(
     @SerialName("events") val events: List<VibrationEventDbo>,
-    @SerialName("notificationText") val notificationText: String?,
 )
 
 @Serializable

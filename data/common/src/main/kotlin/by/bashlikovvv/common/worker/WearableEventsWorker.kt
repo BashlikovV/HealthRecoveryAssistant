@@ -20,10 +20,6 @@ class WearableEventsWorker(
 ) : CoroutineWorker(appContext, params) {
     private val workTag = params.tags.last()
 
-    init {
-        print(params)
-    }
-
     override suspend fun doWork(): Result {
         wearableRemoteDataSource.initialize(appContext)
         when (val result = wearableLocalDataSource.getLatestWearableEvent()) {
@@ -43,15 +39,11 @@ class WearableEventsWorker(
         when (val result = wearableLocalDataSource.getLatestWearableEvent()) {
             is BaseResult.Success -> {
                 result.data?.let { wearableEventNotNull ->
-                    WorkManager.getInstance(appContext)
-                        .enqueue(
-                            OneTimeWorkRequestBuilder<WearableEventsWorker>()
-                                .setInitialDelay(
+                    WorkManager.getInstance(appContext).enqueue(
+                            OneTimeWorkRequestBuilder<WearableEventsWorker>().setInitialDelay(
                                     wearableEventNotNull.scheduledTime - System.currentTimeMillis(),
                                     TimeUnit.MILLISECONDS
-                                )
-                                .addTag(workTag)
-                                .build()
+                                ).addTag(workTag).build()
                         )
                 }
             }

@@ -2,9 +2,9 @@ package by.bashlikovvv.common.source
 
 import android.content.ContentResolver
 import android.net.Uri
-import by.bashlikovvv.common.model.WearableEventsDbo
 import by.bashlikovvv.domain.base.AppDispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -17,8 +17,8 @@ class FilesLocalDataSource(
 ) {
     private val ioDispatcher = appDispatchers.io
 
-    suspend fun openFile(uri: Uri): WearableEventsDbo? = withContext(ioDispatcher) {
-        suspendCoroutine<WearableEventsDbo?> { continuation ->
+    suspend fun openFile(uri: Uri): String? = withContext(ioDispatcher) {
+        suspendCoroutine<String?> { continuation ->
             val jsonString = contentResolver
                 .openInputStream(uri)
                 ?.buffered()
@@ -35,7 +35,11 @@ class FilesLocalDataSource(
                     stringBuilder.toString()
                 }
 
-            continuation.resume(jsonString?.let { Json.decodeFromString(it) })
+            continuation.resume(jsonString)
         }
     }
 }
+
+inline fun <reified T : Any>String.decodeFromJsonString(): T = Json.decodeFromString<T>(this)
+
+inline fun <reified T : Any> T.encodeToJsonString(): String = Json.encodeToString(this)

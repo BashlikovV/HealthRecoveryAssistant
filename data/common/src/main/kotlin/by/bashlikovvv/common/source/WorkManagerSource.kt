@@ -2,14 +2,15 @@ package by.bashlikovvv.common.source
 
 import android.content.Context
 import androidx.work.Configuration
+import androidx.work.Constraints
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkerFactory
 import by.bashlikovvv.common.worker.WearableEventsWorker
+import by.bashlikovvv.common.worker.WorkerFactoryProvider
 import java.util.concurrent.TimeUnit
 
 class WorkManagerSource(
-    private val workerFactoryProvider: WorkerFactoryProvider,
+    private val workerFactoryProvider: WorkerFactoryProvider = WorkerFactoryProvider.Base,
 ) {
     fun initializeWorkManager(
         context: Context,
@@ -40,13 +41,5 @@ class WorkManagerSource(
 
     companion object {
         const val UNIQUE_WORK_TAG = "421babd4-9739-4209-98e6-9c2ef548a664"
-    }
-}
-
-interface WorkerFactoryProvider {
-    fun provideFactory(): WorkerFactory?
-
-    class Base() : WorkerFactoryProvider {
-        override fun provideFactory(): WorkerFactory? = null
     }
 }

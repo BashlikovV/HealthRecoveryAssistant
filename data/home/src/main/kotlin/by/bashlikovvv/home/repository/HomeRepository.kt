@@ -6,6 +6,7 @@ import by.bashlikovvv.common.mapper.WearableEventsDboToWearableEventsMapper
 import by.bashlikovvv.common.source.FilesLocalDataSource
 import by.bashlikovvv.common.source.WearableEventsLocalDataSource
 import by.bashlikovvv.common.source.WorkManagerSource
+import by.bashlikovvv.common.source.decodeFromJsonString
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.WearableEvent
 import by.bashlikovvv.domain.model.WearableEvents
@@ -20,7 +21,9 @@ class HomeRepository(
 
         return try {
             BaseResult.Success(
-                filesLocalDataSource.openFile(uri)?.let { mapper.mapFromEntity(it) }
+                filesLocalDataSource.openFile(uri)?.let {
+                    mapper.mapFromEntity(it.decodeFromJsonString())
+                }
             )
         } catch (e: Exception) {
             BaseResult.Failure(e)
