@@ -1,9 +1,9 @@
-package by.bashlikovvv.common.local.views
+package by.bashlikovvv.database.views
 
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
-import by.bashlikovvv.common.local.contract.HRADRoomContract.WearableEventsTable
-import by.bashlikovvv.common.local.contract.HRADRoomContract.WearableTasksTable
+import by.bashlikovvv.database.contract.HRADRoomContract.WearableEventsTable
+import by.bashlikovvv.database.contract.HRADRoomContract.WearableTasksTable
 
 @DatabaseView(
     value = """SELECT ${WearableEventsTable.COLUMN_ID}, ${WearableEventsTable.COLUMN_SCHEDULED_TIME}, ${WearableTasksTable.COLUMN_VIBRATION_EVENTS}, ${WearableTasksTable.COLUMN_NOTIFICATION_TEXT} 

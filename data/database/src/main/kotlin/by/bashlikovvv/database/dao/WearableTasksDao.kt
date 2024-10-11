@@ -1,9 +1,9 @@
-package by.bashlikovvv.common.local.dao
+package by.bashlikovvv.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import by.bashlikovvv.common.local.model.WearableTaskEntity
+import by.bashlikovvv.database.model.WearableTaskEntity
 
 @Dao
 interface WearableTasksDao {

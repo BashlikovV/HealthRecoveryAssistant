@@ -1,4 +1,4 @@
-package by.bashlikovvv.common.local.contract
+package by.bashlikovvv.database.contract
 
 object HRADRoomContract {
     const val DATABASE_NAME = "hrad_database.room"

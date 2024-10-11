@@ -1,8 +1,8 @@
 package by.bashlikovvv.healthrecoveryassistant.di
 
 import androidx.room.Room
-import by.bashlikovvv.common.local.HRADatabase
-import by.bashlikovvv.common.local.contract.HRADRoomContract
+import by.bashlikovvv.database.HRADatabase
+import by.bashlikovvv.database.contract.HRADRoomContract
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 

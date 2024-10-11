@@ -1,10 +1,10 @@
 package by.bashlikovvv.common.source
 
-import by.bashlikovvv.common.local.dao.WearableEventsDao
-import by.bashlikovvv.common.local.dao.WearableTasksDao
 import by.bashlikovvv.common.mapper.WearableEventToWearableEventEntityMapper
 import by.bashlikovvv.common.mapper.WearableEventToWearableTaskEntityMapper
 import by.bashlikovvv.common.mapper.WearableEventViewToWearableEventMapper
+import by.bashlikovvv.database.dao.WearableEventsDao
+import by.bashlikovvv.database.dao.WearableTasksDao
 import by.bashlikovvv.domain.base.AppDispatchers
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.WearableEvent

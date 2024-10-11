@@ -1,12 +1,12 @@
-package by.bashlikovvv.common.local
+package by.bashlikovvv.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import by.bashlikovvv.common.local.dao.WearableEventsDao
-import by.bashlikovvv.common.local.dao.WearableTasksDao
-import by.bashlikovvv.common.local.model.WearableEventEntity
-import by.bashlikovvv.common.local.model.WearableTaskEntity
-import by.bashlikovvv.common.local.views.WearableEventView
+import by.bashlikovvv.database.dao.WearableEventsDao
+import by.bashlikovvv.database.dao.WearableTasksDao
+import by.bashlikovvv.database.model.WearableEventEntity
+import by.bashlikovvv.database.model.WearableTaskEntity
+import by.bashlikovvv.database.views.WearableEventView
 
 @Database(
     version = 1,

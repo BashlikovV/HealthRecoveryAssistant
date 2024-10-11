@@ -1,13 +1,13 @@
-package by.bashlikovvv.common.local.dao
+package by.bashlikovvv.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import by.bashlikovvv.common.local.contract.HRADRoomContract.WearableEventsTable
-import by.bashlikovvv.common.local.model.WearableEventEntity
-import by.bashlikovvv.common.local.views.WearableEventView
+import by.bashlikovvv.database.contract.HRADRoomContract.WearableEventsTable
+import by.bashlikovvv.database.model.WearableEventEntity
+import by.bashlikovvv.database.views.WearableEventView
 
 @Dao
 interface WearableEventsDao {
