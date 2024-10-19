@@ -1,9 +1,9 @@
 package by.bashlikovvv.bluetooth.model
 
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 
 /**
  * Callback interface handling gatt events.
@@ -96,5 +96,5 @@ interface GattCallback {
      */
     fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int)
 
-    fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int);
+    fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int)
 }
