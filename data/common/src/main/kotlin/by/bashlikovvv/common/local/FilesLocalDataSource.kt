@@ -1,4 +1,4 @@
-package by.bashlikovvv.common.source
+package by.bashlikovvv.common.local
 
 import android.content.ContentResolver
 import android.net.Uri

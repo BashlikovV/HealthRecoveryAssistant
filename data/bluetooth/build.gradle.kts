@@ -3,9 +3,9 @@ plugins {
 }
 
 android {
-    namespace = "by.bashlikovvv.data.home"
+    namespace = "by.bashlikovvv.data.bluetooth"
 }
 
 dependencies {
-    implementation(projects.data.common)
+    //TODO add needed dependencies
 }

@@ -25,6 +25,5 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.data.common)
     implementation(projects.data.database)
-    implementation(projects.data.home)
     implementation(projects.features.root)
 }

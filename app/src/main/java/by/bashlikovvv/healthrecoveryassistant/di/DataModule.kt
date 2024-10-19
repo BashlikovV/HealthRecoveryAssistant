@@ -2,9 +2,11 @@ package by.bashlikovvv.healthrecoveryassistant.di
 
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
 import by.bashlikovvv.common.repository.RootRepository
-import by.bashlikovvv.common.source.FilesLocalDataSource
-import by.bashlikovvv.common.source.WearableEventsLocalDataSource
-import by.bashlikovvv.common.source.WorkManagerSource
+import by.bashlikovvv.common.local.FilesLocalDataSource
+import by.bashlikovvv.common.local.WearableEventsLocalDataSource
+import by.bashlikovvv.common.repository.HARFilesRepository
+import by.bashlikovvv.common.repository.WearableRepository
+import by.bashlikovvv.common.worker.WorkManagerSource
 import by.bashlikovvv.common.worker.CustomWorkerFactory
 import by.bashlikovvv.common.worker.WearableEventsWorker
 import by.bashlikovvv.common.worker.WorkerFactoryProvider
@@ -56,7 +58,19 @@ val dataModule = module {
     single {
         RootRepository(
             wearableRemoteDataSource = get(),
+        )
+    }
+
+    single {
+        HARFilesRepository(
             filesLocalDataSource = get(),
+        )
+    }
+
+    single {
+        WearableRepository(
+            wearableEventsLocalDataSource = get(),
+            workManagerSource = get(),
         )
     }
 }

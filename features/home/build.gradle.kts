@@ -10,5 +10,5 @@ android {
 dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.domain)
-    implementation(projects.data.home)
+    implementation(projects.data.common)
 }

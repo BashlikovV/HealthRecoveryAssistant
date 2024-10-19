@@ -6,7 +6,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
-import by.bashlikovvv.common.source.WearableEventsLocalDataSource
+import by.bashlikovvv.common.local.WearableEventsLocalDataSource
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.WearableEvent
 import kotlinx.coroutines.delay

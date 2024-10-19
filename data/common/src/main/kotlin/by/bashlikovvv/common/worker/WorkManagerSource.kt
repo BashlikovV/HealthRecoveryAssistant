@@ -1,11 +1,9 @@
-package by.bashlikovvv.common.source
+package by.bashlikovvv.common.worker
 
 import android.content.Context
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import by.bashlikovvv.common.worker.WearableEventsWorker
-import by.bashlikovvv.common.worker.WorkerFactoryProvider
 import java.util.concurrent.TimeUnit
 
 class WorkManagerSource(

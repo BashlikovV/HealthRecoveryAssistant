@@ -1,20 +1,28 @@
 package by.bashlikovvv.home.presentation.ui.store
 
 import by.bashlikovvv.domain.model.WearableEvents
+import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
 import by.bashlikovvv.ui.base.BaseStoreFactory
 import com.arkivanov.mvikotlin.core.store.Reducer
+import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-class HomeStoreFactory(storeFactory: StoreFactory) : BaseStoreFactory<HomeStore>(storeFactory) {
+internal class HomeStoreFactory(
+    storeFactory: StoreFactory,
+    private val configuration: HomeComponent.Configuration,
+) : BaseStoreFactory<HomeStore>(storeFactory) {
     override fun create(): HomeStore =
-        object : HomeStore, Store<Intent, State, Label> by storeFactory.create(
+        object : HomeStore, Store<Intent, State, Nothing> by storeFactory.create(
             name = STORE_NAME,
             initialState = State(),
             autoInit = true,
             executorFactory = ::HomeStoreExecutor,
-            reducer = reducerImpl
+            reducer = reducerImpl,
+            bootstrapper = configuration.harFileUri?.let {
+                SimpleBootstrapper(Action.InitializeWithHARFile(it))
+            },
         ) {}
 
     private val reducerImpl =
@@ -24,11 +32,15 @@ class HomeStoreFactory(storeFactory: StoreFactory) : BaseStoreFactory<HomeStore>
             }
         }
 
-    sealed class Msg {
+    internal sealed class Msg {
         data class HRAFileData(
             val name: String,
             val data: WearableEvents?,
         ) : Msg()
+    }
+
+    internal sealed interface Action {
+        data class InitializeWithHARFile(val uri: String) : Action
     }
 
     companion object {

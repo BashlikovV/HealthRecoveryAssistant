@@ -11,6 +11,7 @@ android {
 dependencies {
     api(projects.core.domain)
     implementation(projects.data.database)
+    implementation(projects.data.bluetooth)
 
     api(libs.koin.android)
     implementation(libs.play.services.wearable)

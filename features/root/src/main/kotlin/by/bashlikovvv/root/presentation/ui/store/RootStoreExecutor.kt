@@ -2,7 +2,6 @@ package by.bashlikovvv.root.presentation.ui.store
 
 import android.content.Context
 import by.bashlikovvv.common.repository.RootRepository
-import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Intent
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Label
 import by.bashlikovvv.root.presentation.ui.store.RootStore.State
@@ -28,18 +27,7 @@ class RootStoreExecutor : BaseCoroutineExecutor<Intent, Nothing, State, Msg, Lab
 
     private fun onNewIntent(intent: android.content.Intent) {
         if (intent.action == android.content.Intent.ACTION_VIEW) {
-            launchIO(
-                safeAction = {
-                    intent.data
-                        ?.let { rootRepository.openHRAFile(it) }
-                        ?.let { result ->
-                            when(result) {
-                                is BaseResult.Success -> {  }
-                                is BaseResult.Failure -> Unit
-                            }
-                        }
-                }
-            )
+            intent.data?.let { publish(Label.OpenHARFile(it)) }
         }
     }
 

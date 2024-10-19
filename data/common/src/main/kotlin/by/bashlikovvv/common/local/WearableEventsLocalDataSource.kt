@@ -1,4 +1,4 @@
-package by.bashlikovvv.common.source
+package by.bashlikovvv.common.local
 
 import by.bashlikovvv.common.mapper.WearableEventToWearableEventEntityMapper
 import by.bashlikovvv.common.mapper.WearableEventToWearableTaskEntityMapper

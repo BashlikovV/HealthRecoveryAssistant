@@ -17,8 +17,8 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     private val coroutineManager: CoroutineManager by inject()
 
     fun launchIO(
-        safeAction: CoroutineBlock,
         onError: (Throwable) -> Unit = defaultOnErrorBlock,
+        safeAction: CoroutineBlock,
     ): Job = coroutineManager.launchIO(
         scope = scope,
         block = safeAction,
@@ -26,8 +26,8 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     )
 
     fun launchMain(
-        safeAction: CoroutineBlock,
         onError: (Throwable) -> Unit = defaultOnErrorBlock,
+        safeAction: CoroutineBlock,
     ): Job = coroutineManager.launchMain(
         scope = scope,
         block = safeAction,
@@ -35,9 +35,9 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     )
 
     fun launchCustom(
-        safeAction: CoroutineBlock,
         customDispatcher: CoroutineDispatcher,
         onError: (Throwable) -> Unit = defaultOnErrorBlock,
+        safeAction: CoroutineBlock,
     ): Job = coroutineManager.launchCustom(
         scope = scope,
         block = safeAction,

@@ -1,0 +1,46 @@
+@file:SuppressLint("MissingPermission")
+
+package by.bashlikovvv.bluetooth.actions
+
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
+import by.bashlikovvv.bluetooth.model.BtLEAction
+
+/**
+ * Invokes a write operation on a given GATT characteristic.
+ * The result status will be made available asynchronously through the
+ * {@link BluetoothGattCallback}
+ */
+class WriteAction : BtLEAction {
+    private val value: ByteArray
+
+    constructor(
+        characteristic: BluetoothGattCharacteristic,
+        data: ByteArray
+    ) : super(characteristic) {
+        this.value = data
+    }
+
+    override fun run(gatt: BluetoothGatt): Boolean {
+        val properties = characteristic!!.properties
+        if ((properties and BluetoothGattCharacteristic.PROPERTY_WRITE) > 0 || ((properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0)) {
+            return writeValue(gatt, characteristic, value)
+        }
+        return false
+    }
+
+    private fun writeValue(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        value: ByteArray
+    ): Boolean {
+        if (characteristic.setValue(value)) {
+            return gatt.writeCharacteristic(characteristic)
+        }
+
+        return false
+    }
+
+    override fun expectsResult(): Boolean = true
+}
