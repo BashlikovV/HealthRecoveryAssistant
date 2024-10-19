@@ -10,9 +10,11 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.navigate
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import kotlinx.serialization.Serializable
 
 class DefaultRootComponent(
@@ -25,7 +27,7 @@ class DefaultRootComponent(
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialConfiguration = Config.Home,
+            initialConfiguration = Config.Home(),
             handleBackButton = true,
             childFactory = ::child
         )
@@ -38,20 +40,43 @@ class DefaultRootComponent(
         store.accept(intent)
     }
 
+    init {
+        observeLabels(store.labels) { label ->
+            when(label) {
+                is RootStore.Label.OpenHARFile -> onOpenHARFileLabel(label)
+            }
+        }
+    }
+
     private fun child(config: Config, childComponentContext: ComponentContext): Child =
         when(config) {
-            Config.Home -> Child.Home(homeComponent(childComponentContext))
+            is Config.Home -> Child.Home(homeComponent(childComponentContext, config.harFileUri))
         }
 
-    private fun homeComponent(componentContext: ComponentContext): HomeComponent =
+    private fun homeComponent(
+        componentContext: ComponentContext,
+        uri: String?,
+    ): HomeComponent =
         DefaultHomeComponent(
             componentContext = componentContext,
-            storeFactory = storeFactory
+            configuration = HomeComponent.Configuration(uri),
+            storeFactory = storeFactory,
         )
+
+    private fun onOpenHARFileLabel(label: RootStore.Label.OpenHARFile) {
+        navigation.navigate { list ->
+            list.map { item ->
+                when (item) {
+                    is Config.Home -> item.copy(harFileUri = label.uri.toString())
+                    else -> item
+                }
+            }
+        }
+    }
 
     @Serializable
     private sealed class Config {
         @Serializable
-        data object Home : Config()
+        data class Home(val harFileUri: String? = null) : Config()
     }
 }

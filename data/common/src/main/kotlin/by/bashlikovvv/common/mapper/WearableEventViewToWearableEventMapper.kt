@@ -1,6 +1,6 @@
 package by.bashlikovvv.common.mapper
 
-import by.bashlikovvv.common.local.views.WearableEventView
+import by.bashlikovvv.database.views.WearableEventView
 import by.bashlikovvv.domain.base.Mapper
 import by.bashlikovvv.domain.model.WearableEvent
 import kotlinx.serialization.encodeToString

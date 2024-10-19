@@ -6,7 +6,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
-import by.bashlikovvv.common.source.WearableEventsLocalDataSource
+import by.bashlikovvv.common.local.WearableEventsLocalDataSource
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.WearableEvent
 import kotlinx.coroutines.delay
@@ -19,10 +19,6 @@ class WearableEventsWorker(
     private val wearableRemoteDataSource: WearableRemoteDataSource,
 ) : CoroutineWorker(appContext, params) {
     private val workTag = params.tags.last()
-
-    init {
-        print(params)
-    }
 
     override suspend fun doWork(): Result {
         wearableRemoteDataSource.initialize(appContext)
@@ -43,15 +39,11 @@ class WearableEventsWorker(
         when (val result = wearableLocalDataSource.getLatestWearableEvent()) {
             is BaseResult.Success -> {
                 result.data?.let { wearableEventNotNull ->
-                    WorkManager.getInstance(appContext)
-                        .enqueue(
-                            OneTimeWorkRequestBuilder<WearableEventsWorker>()
-                                .setInitialDelay(
+                    WorkManager.getInstance(appContext).enqueue(
+                            OneTimeWorkRequestBuilder<WearableEventsWorker>().setInitialDelay(
                                     wearableEventNotNull.scheduledTime - System.currentTimeMillis(),
                                     TimeUnit.MILLISECONDS
-                                )
-                                .addTag(workTag)
-                                .build()
+                                ).addTag(workTag).build()
                         )
                 }
             }

@@ -1,6 +1,7 @@
 package by.bashlikovvv.root.presentation.ui.store
 
 import android.content.Context
+import android.net.Uri
 import android.os.Parcelable
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Intent
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Label
@@ -23,5 +24,7 @@ interface RootStore : Store<Intent, State, Label> {
         val languageUiType: LanguageUiType = LanguageUiType.EN,
     ) : Parcelable
 
-    sealed class Label
+    sealed class Label {
+        data class OpenHARFile(val uri: Uri) : Label()
+    }
 }

@@ -9,13 +9,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 abstract class BaseComponent(
-    componentContext: ComponentContext
+    componentContext: ComponentContext,
 ) : ComponentContext by componentContext {
     private val scope by lazy {
         coroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     }
 
-    fun <Label : Any>observeLabels(labels: Flow<Label>, onLabel: (label: Label) -> Unit) {
+    fun <Label : Any> observeLabels(labels: Flow<Label>, onLabel: (label: Label) -> Unit) {
         labels
             .onEach { onLabel(it) }
             .launchIn(scope)

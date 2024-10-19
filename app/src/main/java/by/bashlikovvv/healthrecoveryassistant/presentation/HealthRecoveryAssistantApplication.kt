@@ -1,10 +1,10 @@
 package by.bashlikovvv.healthrecoveryassistant.presentation
 
 import android.app.Application
-import by.bashlikovvv.common.source.WorkManagerSource
+import by.bashlikovvv.common.worker.WorkManagerSource
 import by.bashlikovvv.healthrecoveryassistant.di.coreModule
 import by.bashlikovvv.healthrecoveryassistant.di.dataModule
-import by.bashlikovvv.home.di.homeModule
+import by.bashlikovvv.healthrecoveryassistant.di.databaseModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -23,8 +23,8 @@ class HealthRecoveryAssistantApplication : Application() {
             androidContext(this@HealthRecoveryAssistantApplication)
             modules(
                 coreModule,
+                databaseModule,
                 dataModule,
-                homeModule,
             )
         }
     }

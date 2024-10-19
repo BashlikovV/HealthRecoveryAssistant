@@ -8,7 +8,7 @@ import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
 import com.arkivanov.mvikotlin.core.store.Store
 import kotlinx.parcelize.Parcelize
 
-interface HomeStore : Store<Intent, State, Label> {
+interface HomeStore : Store<Intent, State, Nothing> {
     sealed class Intent {
         data class OnActivityResult(val activityResult: ActivityResult) : Intent()
 
@@ -23,6 +23,4 @@ interface HomeStore : Store<Intent, State, Label> {
         val fileName: String? = null,
         val fileContent: WearableEvents? = null,
     ) : Parcelable
-
-    sealed class Label
 }

@@ -1,6 +1,6 @@
 package by.bashlikovvv.common.mapper
 
-import by.bashlikovvv.common.local.model.WearableEventEntity
+import by.bashlikovvv.database.model.WearableEventEntity
 import by.bashlikovvv.domain.base.Mapper
 import by.bashlikovvv.domain.model.WearableEvent
 

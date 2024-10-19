@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED")
+
 package by.bashlikovvv.ui.base
 
 import android.util.Log
@@ -10,13 +12,13 @@ import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State : Any, Message : Any, Label : Any>
-    : CoroutineExecutor<Intent, Action, State, Message, Label>(), KoinComponent {
+abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State : Any, Message : Any, Label : Any> :
+    CoroutineExecutor<Intent, Action, State, Message, Label>(), KoinComponent {
     private val coroutineManager: CoroutineManager by inject()
 
     fun launchIO(
-        safeAction: CoroutineBlock,
         onError: (Throwable) -> Unit = defaultOnErrorBlock,
+        safeAction: CoroutineBlock,
     ): Job = coroutineManager.launchIO(
         scope = scope,
         block = safeAction,
@@ -24,8 +26,8 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     )
 
     fun launchMain(
-        safeAction: CoroutineBlock,
         onError: (Throwable) -> Unit = defaultOnErrorBlock,
+        safeAction: CoroutineBlock,
     ): Job = coroutineManager.launchMain(
         scope = scope,
         block = safeAction,
@@ -33,9 +35,9 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     )
 
     fun launchCustom(
-        safeAction: CoroutineBlock,
         customDispatcher: CoroutineDispatcher,
         onError: (Throwable) -> Unit = defaultOnErrorBlock,
+        safeAction: CoroutineBlock,
     ): Job = coroutineManager.launchCustom(
         scope = scope,
         block = safeAction,
@@ -44,7 +46,11 @@ abstract class BaseCoroutineExecutor<in Intent : Any, in Action : Any, in State 
     )
 
     suspend fun dispatchOnMainThread(msg: Message) = withContext(coroutineManager.uiDispatcher) {
-        dispatch(msg)
+        this@BaseCoroutineExecutor.dispatch(msg)
+    }
+
+    suspend fun publishOnMainThread(label: Label) = withContext(coroutineManager.uiDispatcher) {
+        this@BaseCoroutineExecutor.publish(label)
     }
 
     companion object {

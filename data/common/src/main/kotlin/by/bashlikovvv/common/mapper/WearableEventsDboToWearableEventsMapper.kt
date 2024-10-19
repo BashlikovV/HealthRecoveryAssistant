@@ -17,7 +17,7 @@ class WearableEventsDboToWearableEventsMapper : Mapper<WearableEventsDbo, Wearab
             events = entity.events.map { event ->
                 WearableEvent(
                     scheduledTime = event.scheduledTime,
-                    notificationText = event.taskDescriptionDbo.vibrationDescriptionDbo.notificationText,
+                    notificationText = event.taskDescriptionDbo.notificationText,
                     vibrationDescriptor = VibrationDescriptor(
                         actions = event.taskDescriptionDbo.vibrationDescriptionDbo.events.map {
                             VibrationAction(
@@ -44,9 +44,9 @@ class WearableEventsDboToWearableEventsMapper : Mapper<WearableEventsDbo, Wearab
                                     amplitude = it.amplitude
                                 )
                             },
-                            notificationText = event.notificationText
-                        )
-                    )
+                        ),
+                        notificationText = event.notificationText,
+                    ),
                 )
             }
         )

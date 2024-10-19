@@ -24,6 +24,6 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.ui)
     implementation(projects.data.common)
-    implementation(projects.data.home)
+    implementation(projects.data.database)
     implementation(projects.features.root)
 }
