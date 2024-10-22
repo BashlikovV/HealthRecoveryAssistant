@@ -9,7 +9,7 @@ package by.bashlikovvv.bluetooth.model
  * device. If a coordinator answers true, it will be used to assist in handling
  * the given device.
  */
-public interface DeviceCoordinator {
+interface DeviceCoordinator {
     val orderPriority: Int
 
     /**
