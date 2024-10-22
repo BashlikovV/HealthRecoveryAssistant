@@ -12,8 +12,11 @@ class DefaultHomeComponent(
     componentContext: ComponentContext,
     configuration: Configuration,
     storeFactory: StoreFactory,
+    private val onOutput: (Output) -> Unit,
 ) : HomeComponent, BaseComponent(componentContext) {
     override val store: HomeStore = instanceKeeper.getStore {
         HomeStoreFactory(storeFactory, configuration).create()
     }
+
+    override fun startDiscoveringNewDevices() = onOutput(Output.StartDiscoveringNewDevices)
 }

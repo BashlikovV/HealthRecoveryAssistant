@@ -14,4 +14,5 @@ dependencies {
     implementation(projects.data.common)
 
     implementation(projects.features.home)
+    implementation(projects.features.discovery)
 }

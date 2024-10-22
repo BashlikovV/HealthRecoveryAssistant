@@ -9,14 +9,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.home.presentation.ui.store.HomeStore
 import by.bashlikovvv.ui.composable.ScreenContent
@@ -44,7 +49,8 @@ fun HomeContent(
                 state.fileContent?.let {
                     dispatchIntent(HomeStore.Intent.ScheduleFileData(it, context))
                 }
-            }
+            },
+            onFABClicked = component::startDiscoveringNewDevices
         )
     }
 }
@@ -57,12 +63,13 @@ private fun  ManagedActivityResultLauncher<Intent, ActivityResult>.launchFilesPi
     launch(chooser)
 }
 
-@Composable
+@[Composable OptIn(ExperimentalMaterial3Api::class)]
 private fun HomeScreenContent(
     state: HomeStore.State,
     modifier: Modifier = Modifier,
     onLoadFile: () -> Unit,
     scheduleFileData: () -> Unit,
+    onFABClicked: () -> Unit,
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -84,6 +91,20 @@ private fun HomeScreenContent(
                 Text(text = state.fileContent?.events?.joinToString() ?: "null")
             }
         }
+        FloatingActionButton(
+            onClick = onFABClicked,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(
+                    end = 15.dp,
+                    bottom = 15.dp
+                )
+        ) {
+            Icon(
+                imageVector = AppRes.icons.icAdd,
+                contentDescription = AppRes.strings.startDiscoveringNewDevices,
+            )
+        }
     }
 }
 
@@ -93,7 +114,8 @@ private fun Preview() {
         HomeScreenContent(
             state = HomeStore.State(),
             onLoadFile = { },
-            scheduleFileData = { }
+            scheduleFileData = { },
+            onFABClicked = { }
         )
     }
 }

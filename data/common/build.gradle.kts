@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.healthrecoveryassistant.android.library)
     alias(libs.plugins.jetbrains.kotlin.serialization)
-    alias(libs.plugins.ksp)
 }
 
 android {

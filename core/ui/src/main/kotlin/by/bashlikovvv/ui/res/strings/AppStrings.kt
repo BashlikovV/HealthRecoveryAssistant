@@ -13,6 +13,8 @@ data class AppStrings(
     val sendVibrate: String,
     val loadFile: String,
     val scheduleFileData: String,
+    val startDiscoveringNewDevices: String,
+    val stopDiscoveringDevices: String,
 )
 
 val LocalAppStrings = staticCompositionLocalOf<AppStrings> {

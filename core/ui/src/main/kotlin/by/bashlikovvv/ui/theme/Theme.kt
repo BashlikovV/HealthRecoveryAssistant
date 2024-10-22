@@ -10,6 +10,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import by.bashlikovvv.ui.res.icons.LocalAppIcons
+import by.bashlikovvv.ui.res.icons.baseAppIcons
 import by.bashlikovvv.ui.res.language.LanguageUiType
 import by.bashlikovvv.ui.res.language.LocalAppLanguage
 import by.bashlikovvv.ui.res.language.fetchAppLanguage
@@ -64,6 +66,7 @@ fun HealthRecoveryAssistantTheme(
         CompositionLocalProvider(
             LocalAppLanguage provides appLanguage,
             LocalAppStrings provides appStrings,
+            LocalAppIcons provides baseAppIcons,
             content = content
         )
     }
