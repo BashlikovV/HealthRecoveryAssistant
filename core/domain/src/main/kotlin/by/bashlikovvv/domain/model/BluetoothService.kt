@@ -1,0 +1,18 @@
+package by.bashlikovvv.domain.model
+
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import by.bashlikovvv.domain.base.BaseResult
+
+interface BluetoothService {
+    fun getBluetoothManager(): BluetoothManager?
+
+    fun getBluetoothAdapter(): BluetoothAdapter?
+
+    fun startDiscovery(): BaseResult<Unit>
+
+    fun cancelDiscovery(): BaseResult<Unit>
+
+    fun getBoundDevices(): List<BluetoothDevice>
+}

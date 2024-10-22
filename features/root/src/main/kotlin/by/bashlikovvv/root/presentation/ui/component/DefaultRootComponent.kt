@@ -1,8 +1,11 @@
 package by.bashlikovvv.root.presentation.ui.component
 
+import by.bashlikovvv.discovery.presentation.ui.component.DefaultDiscoveryComponent
+import by.bashlikovvv.discovery.presentation.ui.component.DiscoveryComponent
 import by.bashlikovvv.home.presentation.ui.component.DefaultHomeComponent
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.root.presentation.ui.component.RootComponent.Child
+import by.bashlikovvv.root.presentation.ui.component.RootComponent.Child.*
 import by.bashlikovvv.root.presentation.ui.store.RootStore
 import by.bashlikovvv.root.presentation.ui.store.RootStoreFactory
 import by.bashlikovvv.ui.base.BaseComponent
@@ -11,6 +14,7 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.navigate
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -50,7 +54,8 @@ class DefaultRootComponent(
 
     private fun child(config: Config, childComponentContext: ComponentContext): Child =
         when(config) {
-            is Config.Home -> Child.Home(homeComponent(childComponentContext, config.harFileUri))
+            is Config.Home -> Home(homeComponent(childComponentContext, config.harFileUri))
+            is Config.Discovery -> Discovery(discoveryComponent(childComponentContext))
         }
 
     private fun homeComponent(
@@ -60,6 +65,18 @@ class DefaultRootComponent(
         DefaultHomeComponent(
             componentContext = componentContext,
             configuration = HomeComponent.Configuration(uri),
+            storeFactory = storeFactory,
+            onOutput = { output ->
+                when(output) {
+                    is HomeComponent.Output.StartDiscoveringNewDevices ->
+                        navigation.push(Config.Discovery)
+                }
+            }
+        )
+
+    private fun discoveryComponent(componentContext: ComponentContext): DiscoveryComponent =
+        DefaultDiscoveryComponent(
+            componentContext = componentContext,
             storeFactory = storeFactory,
         )
 
@@ -78,5 +95,8 @@ class DefaultRootComponent(
     private sealed class Config {
         @Serializable
         data class Home(val harFileUri: String? = null) : Config()
+
+        @Serializable
+        data object Discovery : Config()
     }
 }

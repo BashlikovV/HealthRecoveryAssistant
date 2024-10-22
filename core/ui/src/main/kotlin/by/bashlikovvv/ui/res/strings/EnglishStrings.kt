@@ -8,4 +8,6 @@ internal val englishStrings = AppStrings(
     sendVibrate = "send vibrate",
     loadFile = "load file",
     scheduleFileData = "schedule file data",
+    startDiscoveringNewDevices = "start discovering new devices",
+    stopDiscoveringDevices = "stop discovering devices",
 )

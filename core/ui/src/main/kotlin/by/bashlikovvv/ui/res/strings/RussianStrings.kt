@@ -7,5 +7,7 @@ internal val russianStrings = AppStrings(
     amplitudeInIntMax255 = "амплитуда (0..255)",
     sendVibrate = "воспроизвести вибрацию",
     loadFile = "загрузить файл",
-    scheduleFileData = "запланировать данные из файла"
+    scheduleFileData = "запланировать данные из файла",
+    startDiscoveringNewDevices = "начать поиск новых устройств",
+    stopDiscoveringDevices = "остановить поиск устройств",
 )
