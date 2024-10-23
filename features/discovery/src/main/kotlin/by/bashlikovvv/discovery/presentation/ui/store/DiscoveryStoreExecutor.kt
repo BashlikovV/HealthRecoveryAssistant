@@ -3,7 +3,6 @@ package by.bashlikovvv.discovery.presentation.ui.store
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.os.ParcelUuid
 import by.bashlikovvv.common.repository.BluetoothRepository
