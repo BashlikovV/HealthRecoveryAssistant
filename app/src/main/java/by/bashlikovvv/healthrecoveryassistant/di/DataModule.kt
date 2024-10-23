@@ -1,14 +1,15 @@
 package by.bashlikovvv.healthrecoveryassistant.di
 
-import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
-import by.bashlikovvv.common.repository.RootRepository
 import by.bashlikovvv.common.local.FilesLocalDataSource
 import by.bashlikovvv.common.local.WearableEventsLocalDataSource
+import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
+import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.common.repository.HARFilesRepository
+import by.bashlikovvv.common.repository.RootRepository
 import by.bashlikovvv.common.repository.WearableRepository
-import by.bashlikovvv.common.worker.WorkManagerSource
 import by.bashlikovvv.common.worker.CustomWorkerFactory
 import by.bashlikovvv.common.worker.WearableEventsWorker
+import by.bashlikovvv.common.worker.WorkManagerSource
 import by.bashlikovvv.common.worker.WorkerFactoryProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -71,6 +72,12 @@ val dataModule = module {
         WearableRepository(
             wearableEventsLocalDataSource = get(),
             workManagerSource = get(),
+        )
+    }
+
+    single {
+        BluetoothRepository(
+            queueEntitiesProvider = get(),
         )
     }
 }

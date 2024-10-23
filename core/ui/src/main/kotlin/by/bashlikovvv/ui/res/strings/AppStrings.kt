@@ -15,6 +15,7 @@ data class AppStrings(
     val scheduleFileData: String,
     val startDiscoveringNewDevices: String,
     val stopDiscoveringDevices: String,
+    val ok: String,
 )
 
 val LocalAppStrings = staticCompositionLocalOf<AppStrings> {

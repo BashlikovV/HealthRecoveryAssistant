@@ -1,4 +1,4 @@
-package by.bashlikovvv.util
+package by.bashlikovvv.util.ext
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice

@@ -8,14 +8,7 @@ internal class AlertDialogExecutor : BaseCoroutineExecutor<Intent, Nothing, Stat
     override fun executeIntent(intent: Intent, getState: () -> State) {
         when(intent) {
             is Intent.HideDialog -> dispatch(Msg.HideDialog)
-            is Intent.ShowDialog -> dispatch(
-                Msg.ShowDialog(
-                    title = intent.title,
-                    text = intent.text,
-                    confirmButton = intent.confirmButton,
-                    dismissButton = intent.dismissButton,
-                )
-            )
+            is Intent.ShowDialog -> dispatch(Msg.ShowDialog)
         }
     }
 }

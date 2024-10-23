@@ -18,6 +18,8 @@ internal fun DiscoveryScreenContent(
     state: DiscoveryStore.State,
     modifier: Modifier = Modifier,
     onDiscoveryClicked: () -> Unit,
+    onDeviceClicked: (String) -> Unit,
+    onVibrate: () -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -34,6 +36,7 @@ internal fun DiscoveryScreenContent(
                     AppRes.strings.startDiscoveringNewDevices
             )
         }
+        Button(onClick = onVibrate) { Text("vibrate") }
         if (state.devices.isNotEmpty()) {
             DevicesList(
                 list = if (state.isScanning) {
@@ -43,7 +46,7 @@ internal fun DiscoveryScreenContent(
                 } else {
                     state.devices
                 },
-                onDeviceClicked = { address -> }
+                onDeviceClicked = onDeviceClicked
             )
         }
     }

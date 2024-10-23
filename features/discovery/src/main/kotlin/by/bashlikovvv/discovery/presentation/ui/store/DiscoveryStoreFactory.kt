@@ -25,7 +25,56 @@ class DiscoveryStoreFactory(
             is Msg.Discover -> this.copy(isScanning = msg.isScanning)
             is Msg.ChangeBluetoothState -> this.copy(bluetoothState = msg.state)
             is Msg.AddDevice -> this.copy(
-                devices = (this.devices + msg.device).toSet().toList()
+                devices = if (this.devices.any { it.id == msg.device.id }) {
+                    this.devices.map {
+                        if (it.id == msg.device.id) {
+                            it.copy(
+                                name = msg.device.name,
+                                address = msg.device.address,
+                            )
+                        } else {
+                            it
+                        }
+                    }
+                } else {
+                    (this.devices + msg.device)
+                        .toSet()
+                        .toList()
+                }
+            )
+            is Msg.DeviceBonding -> this.copy(
+                devices = this.devices.map {
+                    if (it.address == msg.address) {
+                        it.copy(isInProgress = true)
+                    } else {
+                        it
+                    }
+                }
+            )
+            is Msg.DeviceBonded -> this.copy(
+                devices = this.devices.map {
+                    if (it.address == msg.address) {
+                        it.copy(
+                            isInProgress = false,
+                            isBonded = true,
+                            isError = false,
+                        )
+                    } else {
+                        it
+                    }
+                }
+            )
+            is Msg.DeviceError -> this.copy(
+                devices = this.devices.map {
+                    if (it.address == msg.address) {
+                        it.copy(
+                            isInProgress = false,
+                            isError = true,
+                        )
+                    } else {
+                        it
+                    }
+                }
             )
         }
     }
@@ -36,6 +85,12 @@ class DiscoveryStoreFactory(
         data class ChangeBluetoothState(val state: BluetoothState) : Msg()
 
         data class AddDevice(val device: Device) : Msg()
+
+        data class DeviceBonding(val address: String) : Msg()
+
+        data class DeviceBonded(val address: String) : Msg()
+
+        data class DeviceError(val address: String) : Msg()
     }
 
     internal sealed interface Action

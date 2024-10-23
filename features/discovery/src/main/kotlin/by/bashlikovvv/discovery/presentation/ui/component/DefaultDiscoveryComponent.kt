@@ -1,7 +1,9 @@
 package by.bashlikovvv.discovery.presentation.ui.component
 
 import by.bashlikovvv.discovery.domain.contract.BluetoothReceiver
+import by.bashlikovvv.discovery.domain.contract.BondingReceiver
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
+import by.bashlikovvv.discovery.domain.model.BondAction
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStoreFactory
 import by.bashlikovvv.ui.base.BaseComponent
@@ -11,7 +13,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.childContext
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
-import com.arkivanov.mvikotlin.extensions.coroutines.labels
 
 class DefaultDiscoveryComponent(
     componentContext: ComponentContext,
@@ -24,6 +25,9 @@ class DefaultDiscoveryComponent(
     override val bluetoothReceiver: BluetoothReceiver = BluetoothReceiver(
         onAction = { bluetoothAction -> onBluetoothAction(bluetoothAction) }
     )
+    override val bondingReceiver: BondingReceiver = BondingReceiver(
+        onAction = { bondAction -> onBondAction(bondAction) }
+    )
 
     override val alertDialogComponent: AlertDialogComponent =
         DefaultAlertDialogComponent(
@@ -31,32 +35,12 @@ class DefaultDiscoveryComponent(
             storeFactory = storeFactory,
         )
 
-    init {
-        observeLabels(
-            labels = store.labels,
-            onLabel = { label ->
-                when (label) {
-                    is DiscoveryStore.Label.ShowDialog -> showAlertDialog(label)
-                }
-            }
-        )
-    }
-
-    private fun showAlertDialog(label: DiscoveryStore.Label.ShowDialog) {
-        alertDialogComponent.showDialog(
-            title = label.title,
-            text = label.text,
-            confirmButton = label.confirmButton,
-            dismissButton = label.dismissButton,
-        )
-    }
-
     private fun onBluetoothAction(bluetoothAction: BluetoothAction) {
-        store.accept(
-            DiscoveryStore.Intent.OnBluetoothAction(
-                bluetoothAction
-            )
-        )
+        store.accept(DiscoveryStore.Intent.OnBluetoothAction(bluetoothAction))
+    }
+
+    private fun onBondAction(bondAction: BondAction) {
+        store.accept(DiscoveryStore.Intent.OnBondAction(bondAction))
     }
 
     companion object {

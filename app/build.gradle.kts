@@ -25,5 +25,6 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.data.common)
     implementation(projects.data.database)
+    implementation(projects.data.bluetooth)
     implementation(projects.features.root)
 }

@@ -12,21 +12,14 @@ import android.bluetooth.BluetoothGattCharacteristic
  * has been posted before invoking the next action.
  */
 abstract class BtLEAction {
-    val characteristic: BluetoothGattCharacteristic?
+    val characteristic: BluetoothGattCharacteristic
+
     val creationTimestamp: Long
 
-    constructor(characteristic: BluetoothGattCharacteristic?) {
+    constructor(characteristic: BluetoothGattCharacteristic) {
         this.characteristic = characteristic
         creationTimestamp = System.currentTimeMillis()
     }
-
-    /**
-     * Executes this action, e.g. reads or write a GATT characteristic.
-     *
-     * @param gatt the characteristic to manipulate, or null if none.
-     * @return true if the action was successful, false otherwise
-     */
-    abstract fun run(gatt: BluetoothGatt): Boolean
 
     /**
      * Returns true if this action expects an (async) result which must
@@ -36,4 +29,12 @@ abstract class BtLEAction {
      * with one single bluetooth operation at a time.
      */
     abstract fun expectsResult(): Boolean
+
+    /**
+     * Executes this action, e.g. reads or write a GATT characteristic.
+     *
+     * @param gatt the characteristic to manipulate, or null if none.
+     * @return true if the action was successful, false otherwise
+     */
+    abstract fun run(gatt: BluetoothGatt): Boolean
 }

@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.ParcelUuid
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
+import by.bashlikovvv.util.getBluetoothDeviceFromIntent
 
 class BluetoothReceiver(
     private val onAction: (BluetoothAction) -> Unit
@@ -29,7 +30,7 @@ class BluetoothReceiver(
     private fun onBondStateChangedAction(intent: Intent) {
         onAction(
             BluetoothAction.BondStateChanged(
-                device = getDevice(intent)
+                device = intent.getBluetoothDeviceFromIntent()
             )
         )
     }
@@ -37,7 +38,7 @@ class BluetoothReceiver(
     private fun onUUIDAction(intent: Intent) {
         onAction(
             BluetoothAction.UUID(
-                device = getDevice(intent), rssi = intent.getShortExtra(
+                device = intent.getBluetoothDeviceFromIntent(), rssi = intent.getShortExtra(
                     BluetoothDevice.EXTRA_RSSI, BluetoothAction.Found.DEFAULT_RSSI
                 ).let { rssi ->
                     if (rssi == BluetoothAction.Found.DEFAULT_RSSI) {
@@ -51,15 +52,20 @@ class BluetoothReceiver(
     }
 
     private fun onFoundAction(intent: Intent) {
-        onAction(BluetoothAction.Found(device = getDevice(intent), rssi = intent.getShortExtra(
-            BluetoothDevice.EXTRA_RSSI, BluetoothAction.Found.DEFAULT_RSSI
-        ).let { rssi ->
-            if (rssi == BluetoothAction.Found.DEFAULT_RSSI) {
-                null
-            } else {
-                rssi
-            }
-        }))
+        onAction(
+            BluetoothAction.Found(
+                device = intent.getBluetoothDeviceFromIntent(),
+                rssi = intent.getShortExtra(
+                    BluetoothDevice.EXTRA_RSSI, BluetoothAction.Found.DEFAULT_RSSI
+                ).let { rssi ->
+                    if (rssi == BluetoothAction.Found.DEFAULT_RSSI) {
+                        null
+                    } else {
+                        rssi
+                    }
+                }
+            )
+        )
     }
 
     private fun onStateChangedAction(intent: Intent) {
@@ -72,14 +78,6 @@ class BluetoothReceiver(
         )
     }
 
-    private fun getDevice(intent: Intent): BluetoothDevice? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
-        } else {
-            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-        }
-    }
-
     @Suppress("DEPRECATION")
     private fun getParcelUuids(intent: Intent): Array<ParcelUuid>? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -88,6 +86,8 @@ class BluetoothReceiver(
             )
         } else {
             intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID)
+                ?.map { it as ParcelUuid }
+                ?.toTypedArray()
         }.let { it as Array<ParcelUuid> }
     }
 }

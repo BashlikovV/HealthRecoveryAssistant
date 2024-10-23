@@ -10,4 +10,5 @@ internal val russianStrings = AppStrings(
     scheduleFileData = "запланировать данные из файла",
     startDiscoveringNewDevices = "начать поиск новых устройств",
     stopDiscoveringDevices = "остановить поиск устройств",
+    ok = "Ок",
 )

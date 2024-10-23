@@ -15,17 +15,5 @@ class DefaultAlertDialogComponent(
         AlertDialogStoreFactory(storeFactory).create()
     }
 
-    override fun showDialog(
-        title: String,
-        text: String,
-        confirmButton: String?,
-        dismissButton: String?,
-    ) = store.accept(
-        AlertDialogStore.Intent.ShowDialog(
-            title = title,
-            text = text,
-            confirmButton = confirmButton,
-            dismissButton = dismissButton,
-        )
-    )
+    override fun showDialog() = store.accept(AlertDialogStore.Intent.ShowDialog)
 }
