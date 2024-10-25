@@ -1,7 +1,6 @@
 package by.bashlikovvv.common.repository
 
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattCallback
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
 import by.bashlikovvv.bluetooth.model.Reminder
