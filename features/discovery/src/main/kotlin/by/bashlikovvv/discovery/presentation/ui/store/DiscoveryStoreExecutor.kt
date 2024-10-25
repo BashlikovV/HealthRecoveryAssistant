@@ -3,7 +3,6 @@ package by.bashlikovvv.discovery.presentation.ui.store
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattCallback
 import android.os.ParcelUuid
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
@@ -14,9 +13,12 @@ import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore.*
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStoreFactory.*
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.BluetoothService
+import by.bashlikovvv.domain.model.ReminderDescription
 import by.bashlikovvv.ui.base.BaseCoroutineExecutor
 import by.bashlikovvv.util.ext.deviceName
 import org.koin.core.component.inject
+import java.util.Calendar
+import java.util.TimeZone
 
 internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, Msg, Label>() {
     private val bluetoothService: BluetoothService by inject()
@@ -31,7 +33,17 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
             is Intent.CancelDiscovery -> cancelDiscovery()
             is Intent.BondDevice -> onBondIntent(intent.address)
             is Intent.OnBondAction -> onBondAction(intent.action)
-            is Intent.Vibrate -> bluetoothRepository.sendFindDeviceCommand(true)
+            is Intent.Vibrate -> {
+                val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                calendar.add(Calendar.MINUTE, 1)
+                bluetoothRepository.sendCreateReminderCommand(
+                    ReminderDescription(
+                        message = "test msg",
+                        date = calendar.time
+                    )
+                )
+                bluetoothRepository.sendFindDeviceCommand(true)
+            }
         }
     }
 
@@ -57,10 +69,7 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
         when(bondAction) {
             is BondAction.Bonded -> {
                 dispatch(Msg.DeviceBonded(bondAction.device.address))
-                bluetoothRepository.connect(
-                    device = bondAction.device,
-                    callback = object : BluetoothGattCallback() {}
-                )
+                bluetoothRepository.connect(device = bondAction.device)
             }
             is BondAction.Bonding -> dispatch(Msg.DeviceBonding(bondAction.device.address))
             is BondAction.None -> dispatch(Msg.DeviceError(bondAction.device.address))
@@ -71,11 +80,9 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
     private fun onBondIntent(address: String) {
         cancelDiscovery()
         bluetoothService.bondDevice(address)
+        // TODO: remove
         bluetoothService.getBluetoothDeviceByAddress(address)?.let {
-            bluetoothRepository.connect(
-                it,
-                object : BluetoothGattCallback() { }
-            )
+            bluetoothRepository.connect(it)
         }
     }
 

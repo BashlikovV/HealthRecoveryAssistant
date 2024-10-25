@@ -2,11 +2,9 @@ package by.bashlikovvv.bluetooth.service
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
-import android.util.Log
 import by.bashlikovvv.bluetooth.model.AbstractTransaction
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
@@ -18,7 +16,6 @@ import kotlin.concurrent.thread
 
 class BtLEQueue(
     private val device: GBDevice,
-    private val callback: BluetoothGattCallback,
     private val queueEntitiesProvider: QueueEntitiesProvider,
 ) {
     private val adapter: BluetoothAdapter
@@ -38,26 +35,30 @@ class BtLEQueue(
 
     private var characteristics: Map<UUID, List<BluetoothGattCharacteristic>> = emptyMap()
 
-    private val dispatchThread = thread {
-        while (!isDisposed && !isCrashed) {
-            try {
-                val transaction = transactions.take()
-                if (transaction is Transaction) {
-                    for (action in transaction.actions) {
-                        waitForActionResultLatch = CountDownLatch(1)
-                        if (bluetoothGatt?.let { action.run(it) } == true) {
-                            Log.i("MYTAG", "message write success")
-                            if (action.expectsResult()) {
-//                                waitForActionResultLatch?.await()
-//                                waitForActionResultLatch = null
+    private var waitCharacteristic: BluetoothGattCharacteristic? = null
+
+    init {
+        thread {
+            while (!isDisposed && !isCrashed) {
+                try {
+                    val transaction = transactions.take()
+                    if (transaction is Transaction) {
+                        for (action in transaction.actions) {
+                            waitCharacteristic = action.characteristic
+                            waitForActionResultLatch = CountDownLatch(1)
+                            if (bluetoothGatt?.let { action.run(it) } == true) {
+                                if (action.expectsResult()) {
+                                    waitForActionResultLatch?.await()
+                                    waitForActionResultLatch = null
+                                }
                             }
                         }
                     }
+                } catch (_: Throwable) {
+                    isCrashed = true
+                } finally {
+                    waitForActionResultLatch = null
                 }
-            } catch (_: Throwable) {
-                isCrashed = true
-            } finally {
-                waitForActionResultLatch = null
             }
         }
     }
@@ -72,20 +73,7 @@ class BtLEQueue(
 
         val remoteDevice = adapter.getRemoteDevice(device.device.address)
         synchronized(gattMonitor) {
-            val gatt = queueEntitiesProvider.connectGatt(
-                remoteDevice,
-                object : BluetoothGattCallback() {
-                    override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-                        val characteristics = bluetoothGatt?.services?.flatMap { service ->
-                            service.characteristics
-                        } ?: emptyList()
-                        characteristics
-                            .groupBy { it.uuid }
-                            .ifEmpty { null }
-                            ?.let { this@BtLEQueue.characteristics = it }
-                    }
-                }
-            )
+            val gatt = queueEntitiesProvider.connectGatt(remoteDevice, callback())
             bluetoothGatt = gatt
             Thread.sleep(300)
             gatt.discoverServices()
@@ -93,7 +81,31 @@ class BtLEQueue(
         
         return bluetoothGatt != null
     }
-    
+
+    private fun callback(): BluetoothGattCallback = object : BluetoothGattCallback() {
+        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+            val characteristics = bluetoothGatt?.services?.flatMap { service ->
+                service.characteristics
+            } ?: emptyList()
+            characteristics
+                .groupBy { it.uuid }
+                .ifEmpty { null }
+                ?.let { this@BtLEQueue.characteristics = it }
+        }
+
+        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+            waitForActionResultLatch?.countDown()
+        }
+
+        override fun onCharacteristicWrite(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?,
+            status: Int
+        ) {
+            checkWaitingCharacteristic(characteristic)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     fun disconnect() {
         synchronized(gattMonitor) {
@@ -113,7 +125,12 @@ class BtLEQueue(
             .getOrElse(uuid) { null }
             ?.first()
     }
-    
-    @SuppressLint("MissingPermission")
-    private fun isConnected(): Boolean = device.device.bondState == BluetoothDevice.BOND_BONDED
+
+    private fun checkWaitingCharacteristic(
+        characteristic: BluetoothGattCharacteristic?,
+    ) {
+        if (characteristic != null && waitCharacteristic != null && characteristic.uuid == waitCharacteristic?.uuid) {
+            waitForActionResultLatch?.countDown()
+        }
+    }
 }
