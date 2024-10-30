@@ -16,9 +16,9 @@ class WriteAction : BtLEAction {
     }
 
     override fun run(gatt: BluetoothGatt): Boolean {
-        val properties = characteristic.properties
-        if ((properties and BluetoothGattCharacteristic.PROPERTY_WRITE) > 0 || ((properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0)) {
-            return writeValue(gatt, characteristic, value)
+        val properties = characteristic?.properties
+        if (((properties ?: 0) and BluetoothGattCharacteristic.PROPERTY_WRITE) > 0 || (((properties ?: 0) and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0)) {
+            return writeValue(gatt, characteristic!!, value)
         }
         return false
     }

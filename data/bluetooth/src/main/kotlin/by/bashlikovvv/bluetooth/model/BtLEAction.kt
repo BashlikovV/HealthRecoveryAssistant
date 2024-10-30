@@ -12,11 +12,11 @@ import android.bluetooth.BluetoothGattCharacteristic
  * has been posted before invoking the next action.
  */
 abstract class BtLEAction {
-    val characteristic: BluetoothGattCharacteristic
+    val characteristic: BluetoothGattCharacteristic?
 
     val creationTimestamp: Long
 
-    constructor(characteristic: BluetoothGattCharacteristic) {
+    constructor(characteristic: BluetoothGattCharacteristic?) {
         this.characteristic = characteristic
         creationTimestamp = System.currentTimeMillis()
     }

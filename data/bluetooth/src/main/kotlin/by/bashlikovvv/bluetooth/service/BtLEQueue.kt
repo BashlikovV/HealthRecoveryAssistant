@@ -126,6 +126,14 @@ class BtLEQueue(
             ?.first()
     }
 
+    fun insert(transaction: Transaction) {
+        val tail = ArrayList<AbstractTransaction>(transactions.size + 2)
+        tail.addAll(transactions)
+        transactions.clear()
+        transactions.add(transaction)
+        transactions.addAll(tail)
+    }
+
     private fun checkWaitingCharacteristic(
         characteristic: BluetoothGattCharacteristic?,
     ) {
