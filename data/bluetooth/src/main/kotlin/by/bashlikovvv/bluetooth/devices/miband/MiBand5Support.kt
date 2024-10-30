@@ -5,7 +5,6 @@ import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
 import by.bashlikovvv.bluetooth.model.Reminder
 import by.bashlikovvv.bluetooth.model.Reminder.Builder.Companion.MAX_REMINDER_MESSAGE_LENGTH
-import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.UUID

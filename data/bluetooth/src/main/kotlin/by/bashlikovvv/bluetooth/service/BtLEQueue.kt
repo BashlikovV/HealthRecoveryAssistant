@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.util.Log
-import by.bashlikovvv.bluetooth.action.WriteAction
 import by.bashlikovvv.bluetooth.model.AbstractTransaction
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider

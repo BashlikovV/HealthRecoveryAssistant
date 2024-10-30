@@ -36,7 +36,6 @@ abstract class AbstractDeviceSupport : DeviceSupport {
 
     /**
      * @param gatt
-     * @see BluetoothGattCallback#onServicesDiscovered(BluetoothGatt, int)
      */
     abstract fun onServicesDiscovered(gatt: BluetoothGatt)
 

@@ -2,7 +2,6 @@ package by.bashlikovvv.bluetooth.model
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
-import by.bashlikovvv.bluetooth.service.BtLEQueue
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.util.UUID
 
@@ -34,7 +33,6 @@ abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mS
      * this method quickly returns before the actual operation is finished.
      * Calls #prePerform() and, if successful, #doPerform().
      *
-     * @throws IOException
      */
     fun perform() {
         prePerform()
@@ -44,7 +42,6 @@ abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mS
     /**
      * Hook for subclasses to perform something before #doPerform() is invoked.
      *
-     * @throws IOException
      */
     protected open fun prePerform() {}
 
@@ -54,7 +51,6 @@ abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mS
      * Note that subclasses HAVE TO call #operationFinished() when the entire
      * operation is done (successful or not).
      *
-     * @throws IOException
      */
     abstract fun doPerform()
 
@@ -65,7 +61,6 @@ abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mS
      * Subclasses must ensure that the {@link by.bashlikovvv.bluetooth.service.BtLEQueue queue's}'s gatt callback (set on the transaction builder by {@link #performInitialized(String)})
      * is being unset, otherwise it will continue to receive events until another transaction is being executed by the queue.
      *
-     * @throws IOException
      */
     protected open fun operationFinished() {}
 
@@ -75,7 +70,6 @@ abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mS
      *
      * @param taskName
      * @return
-     * @throws IOException
      */
     fun performInitialized(taskName: String): TransactionBuilder {
         return mSupport.performInitialized(taskName)
