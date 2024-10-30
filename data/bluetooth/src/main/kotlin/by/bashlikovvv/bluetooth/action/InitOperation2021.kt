@@ -2,14 +2,14 @@ package by.bashlikovvv.bluetooth.action
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import by.bashlikovv.bluetooth.util.CryptoUtils
+import by.bashlikovv.bluetooth.util.ECDH_B163
 import by.bashlikovvv.bluetooth.devices.huami.Huami2021ChunkedDecoder
 import by.bashlikovvv.bluetooth.devices.huami.Huami2021ChunkedEncoder
 import by.bashlikovvv.bluetooth.devices.huami.Huami2021Handler
 import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
-import by.bashlikovvv.bluetooth.util.CryptoUtils
-import by.bashlikovvv.bluetooth.util.ECDH_B163
 import java.util.Random
 import java.util.UUID
 import kotlin.experimental.xor

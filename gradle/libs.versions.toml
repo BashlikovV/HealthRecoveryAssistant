@@ -71,7 +71,7 @@ healthrecoveryassistant-android-application-compose = { id = "healthrecoveryassi
 healthrecoveryassistant-android-library = { id = "healthrecoveryassistant.android.library", version = "unspecified"}
 healthrecoveryassistant-android-library-compose = { id = "healthrecoveryassistant.android.library.compose", version = "unspecified" }
 healthrecoveryassistant-android-tests = { id = "healthrecoveryassistant.android.library.tests", version = "unspecified" }
-healthrecoveryassistant-jwm-library = { id = "healthrecoveryassistant.jvm.library", version = "unspecified" }
+healthrecoveryassistant-jvm-library = { id = "healthrecoveryassistant.taxifly.jvm.library", version = "unspecified" }
 
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

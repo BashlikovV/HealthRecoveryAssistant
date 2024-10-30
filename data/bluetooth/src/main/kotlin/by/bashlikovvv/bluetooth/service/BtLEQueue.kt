@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.util.Log
+import by.bashlikovvv.bluetooth.action.WriteAction
 import by.bashlikovvv.bluetooth.model.AbstractTransaction
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
@@ -17,6 +19,7 @@ import kotlin.concurrent.thread
 class BtLEQueue(
     private val device: GBDevice,
     private val queueEntitiesProvider: QueueEntitiesProvider,
+    private val onServicesDiscovered: (BluetoothGatt) -> Unit,
 ) {
     private val adapter: BluetoothAdapter
         get() = queueEntitiesProvider.getAdapter() ?: BluetoothAdapter.getDefaultAdapter()
@@ -44,6 +47,7 @@ class BtLEQueue(
                     val transaction = transactions.take()
                     if (transaction is Transaction) {
                         for (action in transaction.actions) {
+                            Log.i("MYTAG", "action: $action, expectsResult: ${action.expectsResult()}")
                             waitCharacteristic = action.characteristic
                             waitForActionResultLatch = CountDownLatch(1)
                             if (bluetoothGatt?.let { action.run(it) } == true) {
@@ -84,6 +88,7 @@ class BtLEQueue(
 
     private fun callback(): BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+            gatt?.let { onServicesDiscovered(it) }
             val characteristics = bluetoothGatt?.services?.flatMap { service ->
                 service.characteristics
             } ?: emptyList()
@@ -93,16 +98,24 @@ class BtLEQueue(
                 ?.let { this@BtLEQueue.characteristics = it }
         }
 
-        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
-            waitForActionResultLatch?.countDown()
-        }
-
         override fun onCharacteristicWrite(
             gatt: BluetoothGatt?,
             characteristic: BluetoothGattCharacteristic?,
             status: Int
         ) {
             checkWaitingCharacteristic(characteristic)
+        }
+
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray
+        ) {
+            checkWaitingCharacteristic(characteristic)
+        }
+
+        override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+            waitForActionResultLatch?.countDown()
         }
     }
 

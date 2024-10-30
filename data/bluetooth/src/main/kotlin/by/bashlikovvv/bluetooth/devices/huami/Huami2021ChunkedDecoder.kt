@@ -14,132 +14,121 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
-package by.bashlikovvv.bluetooth.devices.huami;
+package by.bashlikovvv.bluetooth.devices.huami
 
+import android.annotation.SuppressLint
+import java.nio.ByteBuffer
+import java.security.InvalidKeyException
+import java.security.NoSuchAlgorithmException
+import javax.crypto.BadPaddingException
+import javax.crypto.Cipher
+import javax.crypto.IllegalBlockSizeException
+import javax.crypto.NoSuchPaddingException
+import javax.crypto.spec.SecretKeySpec
+import kotlin.experimental.and
+import kotlin.experimental.xor
 
-import android.annotation.SuppressLint;
-
-import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
-
-public class Huami2021ChunkedDecoder {
-    private Byte currentHandle;
-    private int currentType;
-    private int currentLength;
-    ByteBuffer reassemblyBuffer;
+class Huami2021ChunkedDecoder(
+    private val force2021Protocol: Boolean,
+    private val huami2021Handler: Huami2021Handler
+) {
+    private var currentHandle: Byte? = null
+    private var currentType = 0
+    private var currentLength = 0
+    private lateinit var reassemblyBuffer: ByteBuffer
 
     // Keep track of last handle and count for acks
-    private byte lastHandle;
-    private byte lastCount;
+    var lastHandle: Byte = 0
+        private set
+    var lastCount: Byte = 0
+        private set
 
-    private volatile byte[] sharedSessionKey;
+    @Volatile
+    private var sharedSessionKey: ByteArray? = null
 
-    private final boolean force2021Protocol;
-
-    private final Huami2021Handler huami2021Handler;
-
-    public Huami2021ChunkedDecoder(
-            final boolean force2021Protocol,
-            final Huami2021Handler huami2021Handler
-    ) {
-        this.force2021Protocol = force2021Protocol;
-        this.huami2021Handler = huami2021Handler;
+    fun setEncryptionParameters(sharedSessionKey: ByteArray) {
+        this.sharedSessionKey = sharedSessionKey
     }
 
-    public void setEncryptionParameters(final byte[] sharedSessionKey) {
-        this.sharedSessionKey = sharedSessionKey;
-    }
-
-    public byte getLastHandle() {
-        return lastHandle;
-    }
-
-    public byte getLastCount() {
-        return lastCount;
-    }
-
-    public boolean decode(final byte[] data) {
-        int i = 0;
-        if (data[i++] != 0x03) {
-            return false;
+    fun decode(data: ByteArray): Boolean {
+        var i = 0
+        if (data[i++] != 0x03.toByte()) {
+            return false
         }
-        final byte flags = data[i++];
-        final boolean encrypted = ((flags & 0x08) == 0x08);
-        final boolean firstChunk = ((flags & 0x01) == 0x01);
-        final boolean lastChunk = ((flags & 0x02) == 0x02);
-        final boolean needsAck = ((flags & 0x04) == 0x04);
+        val flags = data[i++]
+        val encrypted = (flags and 0x08) == 0x08.toByte()
+        val firstChunk = (flags and 0x01) == 0x01.toByte()
+        val lastChunk = (flags and 0x02) == 0x02.toByte()
+        val needsAck = (flags and 0x04) == 0x04.toByte()
 
         if (force2021Protocol) {
-            i++; // skip extended header
+            i++ // skip extended header
         }
-        final byte handle = data[i++];
+        val handle = data[i++]
         if (currentHandle != null && currentHandle != handle) {
-            return false;
+            return false
         }
-        lastHandle = handle;
-        lastCount = data[i++];
+        lastHandle = handle
+        lastCount = data[i++]
         if (firstChunk) { // beginning
-            int full_length = (data[i++] & 0xff) | ((data[i++] & 0xff) << 8) | ((data[i++] & 0xff) << 16) | ((data[i++] & 0xff) << 24);
-            currentLength = full_length;
+            var fullLength = (data[i++].toInt() and 0xff) or
+                    ((data[i++].toInt() and 0xff) shl 8) or
+                    ((data[i++].toInt() and 0xff) shl 16) or
+                    ((data[i++].toInt() and 0xff) shl 24)
+            currentLength = fullLength
             if (encrypted) {
-                int encrypted_length = full_length + 8;
-                int overflow = encrypted_length % 16;
+                var encryptedLength = fullLength + 8
+                val overflow = encryptedLength % 16
                 if (overflow > 0) {
-                    encrypted_length += (16 - overflow);
+                    encryptedLength += (16 - overflow)
                 }
-                full_length = encrypted_length;
+                fullLength = encryptedLength
             }
-            reassemblyBuffer = ByteBuffer.allocate(full_length);
-            currentType = (data[i++] & 0xff) | ((data[i++] & 0xff) << 8);
-            currentHandle = handle;
+            reassemblyBuffer = ByteBuffer.allocate(fullLength)
+            currentType = (data[i++].toInt() and 0xff) or ((data[i++].toInt() and 0xff) shl 8)
+            currentHandle = handle
         }
-        reassemblyBuffer.put(data, i, data.length - i);
+        reassemblyBuffer.put(data, i, data.size - i)
         if (lastChunk) { // end
-            byte[] buf = reassemblyBuffer.array();
+            var buf = reassemblyBuffer.array()
             if (encrypted) {
-                if (sharedSessionKey == null) {
+                sharedSessionKey?.let { key ->
+                    val messageKey = ByteArray(16) { j -> (key[j] xor handle).toByte() }
+                    try {
+                        buf = decryptAES(buf, messageKey)
+                        buf = buf.copyOfRange(0, currentLength)
+                    } catch (e: Exception) {
+                        currentHandle = null
+                        currentType = 0
+                        return false
+                    }
+                } ?: run {
                     // Should never happen
-                    currentHandle = null;
-                    currentType = 0;
-                    return false;
-                }
-
-                byte[] messagekey = new byte[16];
-                for (int j = 0; j < 16; j++) {
-                    messagekey[j] = (byte) (sharedSessionKey[j] ^ handle);
-                }
-                try {
-                    buf = decryptAES(buf, messagekey);
-                    buf = Arrays.copyOfRange(buf, 0, currentLength);
-                } catch (Exception e) {
-                    currentHandle = null;
-                    currentType = 0;
-                    return false;
+                    currentHandle = null
+                    currentType = 0
+                    return false
                 }
             }
 
             try {
-                huami2021Handler.handle2021Payload((short) currentType, buf);
-            } catch (final Exception ignored) {}
-            currentHandle = null;
-            currentType = 0;
+                huami2021Handler.handle2021Payload(currentType.toShort(), buf)
+            } catch (ignored: Exception) {}
+            currentHandle = null
+            currentType = 0
         }
 
-        return needsAck;
+        return needsAck
     }
 
-    public static byte[] decryptAES(byte[] value, byte[] secretKey) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
-        @SuppressLint("GetInstance") Cipher ecipher = Cipher.getInstance("AES/ECB/NoPadding");
-        SecretKeySpec newKey = new SecretKeySpec(secretKey, "AES");
-        ecipher.init(Cipher.DECRYPT_MODE, newKey);
-        return ecipher.doFinal(value);
+    companion object {
+        @SuppressLint("GetInstance")
+        @Throws(InvalidKeyException::class, NoSuchPaddingException::class, NoSuchAlgorithmException::class, BadPaddingException::class, IllegalBlockSizeException::class)
+        fun decryptAES(value: ByteArray, secretKey: ByteArray): ByteArray {
+            val ecipher = Cipher.getInstance("AES/ECB/NoPadding")
+            val newKey = SecretKeySpec(secretKey, "AES")
+            ecipher.init(Cipher.DECRYPT_MODE, newKey)
+            return ecipher.doFinal(value)
+        }
     }
 }
+

@@ -16,6 +16,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 open class HuamiSupport(
+    private val key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
 ) : AbstractBtLEDeviceSupport(device, provider), Huami2021Handler {
@@ -45,7 +46,7 @@ open class HuamiSupport(
                 getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER_2021_WRITE)
             if (characteristicChunked2021Write != null && huami2021ChunkedEncoder == null) {
                 huami2021ChunkedEncoder = Huami2021ChunkedEncoder(
-                    characteristicChunked2021Write, true, getMtu()
+                    characteristicChunked2021Write!!, true, getMtu()
                 )
             }
             InitOperation2021(
@@ -54,7 +55,7 @@ open class HuamiSupport(
                 cryptFlags = cryptFlags,
                 support = this,
                 builder = builder,
-                authKey = "",
+                authKey = key,
                 huami2021ChunkedEncoder = huami2021ChunkedEncoder,
                 huami2021ChunkedDecoder = huami2021ChunkedDecoder,
             ).perform()

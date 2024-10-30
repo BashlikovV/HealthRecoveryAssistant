@@ -1,30 +1,10 @@
-/*  Copyright (C) 2015-2024 Andreas Shimokawa, Carsten Pfeiffer, Damien
-    Gaignon, Daniel Dakhno, Uwe Hermann
+package by.bashlikovvv.bluetooth.model
 
-    This file is part of Gadgetbridge.
-
-    Gadgetbridge is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Gadgetbridge is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>. */
-package by.bashlikovvv.bluetooth.model;
-
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import by.bashlikovvv.bluetooth.service.BtLEQueue;
-import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder;
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
+import by.bashlikovvv.bluetooth.service.BtLEQueue
+import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
+import java.util.UUID
 
 /**
  * Abstract base class for a BTLEOperation, i.e. an operation that does more than
@@ -39,14 +19,15 @@ import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder;
  * Note: by default all Gatt events are forwarded to AbstractBTLEDeviceSupport, subclasses may override
  * this behavior.
  */
-public abstract class AbstractBTLEOperation<T extends AbstractDeviceSupport>  {
-    protected final T mSupport;
+abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mSupport: T) {
 
-    private String name;
+    private var name: String? = null
 
-    protected AbstractBTLEOperation(T support) {
-        mSupport = support;
-    }
+    val support: T
+        get() = mSupport
+
+    val device: GBDevice
+        get() = support.device
 
     /**
      * Performs this operation. The whole operation is asynchronous, i.e.
@@ -55,9 +36,9 @@ public abstract class AbstractBTLEOperation<T extends AbstractDeviceSupport>  {
      *
      * @throws IOException
      */
-    public final void perform() throws IOException {
-        prePerform();
-        doPerform();
+    fun perform() {
+        prePerform()
+        doPerform()
     }
 
     /**
@@ -65,8 +46,7 @@ public abstract class AbstractBTLEOperation<T extends AbstractDeviceSupport>  {
      *
      * @throws IOException
      */
-    protected void prePerform() throws IOException {
-    }
+    protected open fun prePerform() {}
 
     /**
      * Subclasses must implement this. When invoked, #prePerform() returned
@@ -76,7 +56,7 @@ public abstract class AbstractBTLEOperation<T extends AbstractDeviceSupport>  {
      *
      * @throws IOException
      */
-    protected abstract void doPerform() throws IOException;
+    abstract fun doPerform()
 
     /**
      * You MUST call this method when the operation has finished, either
@@ -87,8 +67,7 @@ public abstract class AbstractBTLEOperation<T extends AbstractDeviceSupport>  {
      *
      * @throws IOException
      */
-    protected void operationFinished() throws IOException {
-    }
+    protected open fun operationFinished() {}
 
     /**
      * Delegates to the DeviceSupport instance and additionally sets this instance as the Gatt
@@ -98,37 +77,28 @@ public abstract class AbstractBTLEOperation<T extends AbstractDeviceSupport>  {
      * @return
      * @throws IOException
      */
-    public TransactionBuilder performInitialized(String taskName) throws IOException {
-        TransactionBuilder builder = mSupport.performInitialized(taskName);
-        return builder;
+    fun performInitialized(taskName: String): TransactionBuilder {
+        return mSupport.performInitialized(taskName)
     }
 
-    public TransactionBuilder createTransactionBuilder(String taskName) {
-        TransactionBuilder builder = getSupport().createTransactionBuilder(taskName);
-        return builder;
+    fun createTransactionBuilder(taskName: String): TransactionBuilder {
+        return mSupport.createTransactionBuilder(taskName)
     }
 
-    public boolean onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        return mSupport.onCharacteristicChanged(gatt, characteristic);
+    open fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?): Boolean {
+        return gatt?.let { gatt ->
+            characteristic?.let { characteristic ->
+                mSupport.onCharacteristicChanged(gatt, characteristic)
+            }
+        } == true
     }
 
-    protected GBDevice getDevice() {
-        return mSupport.getDevice();
+    protected fun setName(name: String) {
+        this.name = name
     }
 
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-    protected BluetoothGattCharacteristic getCharacteristic(UUID uuid) {
-        return mSupport.getCharacteristic(uuid);
-    }
-
-    protected BtLEQueue getQueue() {
-        return mSupport.getMQueue();
-    }
-
-    public T getSupport() {
-        return mSupport;
+    protected fun getCharacteristic(uuid: UUID): BluetoothGattCharacteristic? {
+        return mSupport.getCharacteristic(uuid)
     }
 }
+

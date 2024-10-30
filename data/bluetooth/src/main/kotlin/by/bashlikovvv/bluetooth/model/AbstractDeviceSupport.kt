@@ -7,7 +7,7 @@ import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.util.UUID
 
 abstract class AbstractDeviceSupport : DeviceSupport {
-    protected val device: GBDevice
+    val device: GBDevice
 
     protected val queueEntitiesProvider: QueueEntitiesProvider
 

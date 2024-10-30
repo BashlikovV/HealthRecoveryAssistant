@@ -11,13 +11,14 @@ import java.util.Date
 import java.util.UUID
 
 class MiBand5Support(
+    key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
-) : HuamiSupport(device, provider) {
+) : HuamiSupport(key ,device, provider) {
     override fun onFindDevice(start: Boolean) {
         mQueue?.let { queueNotNull ->
             val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_ALERT_LEVEL)
-            val tb = TransactionBuilder("find device")
+            val tb = performInitialized("find device")
             tb.write(characteristics, if (start) byteArrayOf(3) else byteArrayOf(0))
             tb.queue(queueNotNull)
         }
@@ -45,7 +46,7 @@ class MiBand5Support(
             .build()
         mQueue?.let { queueNotNull ->
             val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
-            val tb = TransactionBuilder("set reminder")
+            val tb = performInitialized("set reminder")
             tb.writeToChunkedOld(characteristics, 2, reminderRepresentation)
             tb.queue(queueNotNull)
         }

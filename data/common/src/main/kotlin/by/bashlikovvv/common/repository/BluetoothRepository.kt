@@ -16,6 +16,7 @@ class BluetoothRepository(
 
     fun connect(device: BluetoothDevice): Boolean {
         support = MiBand5Support(
+            "0xe1c8161e1a4d7f876d9d6c637775a25b",
             GBDevice(device, DeviceType.MI_BAND_5),
             queueEntitiesProvider
         )

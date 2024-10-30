@@ -3,6 +3,7 @@ package by.bashlikovvv.bluetooth.model
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import by.bashlikovvv.bluetooth.action.CheckInitializedAction
+import by.bashlikovvv.bluetooth.action.SetDeviceStateAction
 import by.bashlikovvv.bluetooth.service.BtLEQueue
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.util.UUID
@@ -30,6 +31,7 @@ abstract class AbstractBtLEDeviceSupport(
             mQueue = BtLEQueue(
                 device = device,
                 queueEntitiesProvider = queueEntitiesProvider,
+                onServicesDiscovered = { onServicesDiscovered(it) }
             )
         }
 
@@ -49,7 +51,7 @@ abstract class AbstractBtLEDeviceSupport(
     }
 
     override fun performInitialized(taskName: String): TransactionBuilder {
-        if (isInitialized) {
+        if (!isInitialized) {
             mQueue?.let { queueNotNull ->
                 val builder = createTransactionBuilder("Initialize device")
                 builder.add(CheckInitializedAction(device))

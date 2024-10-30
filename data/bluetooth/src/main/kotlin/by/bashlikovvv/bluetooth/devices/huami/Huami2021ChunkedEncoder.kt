@@ -14,165 +14,162 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
-package by.bashlikovvv.bluetooth.devices.huami;
+package by.bashlikovvv.bluetooth.devices.huami
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothGattCharacteristic;
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGattCharacteristic
+import java.security.InvalidKeyException
+import java.security.NoSuchAlgorithmException
+import java.util.zip.CRC32
+import javax.crypto.BadPaddingException
+import javax.crypto.Cipher
+import javax.crypto.IllegalBlockSizeException
+import javax.crypto.NoSuchPaddingException
+import javax.crypto.spec.SecretKeySpec
+import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
+import kotlin.experimental.or
+import kotlin.experimental.xor
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.zip.CRC32;
+class Huami2021ChunkedEncoder(
+    private val characteristicChunked2021Write: BluetoothGattCharacteristic,
+    private val force2021Protocol: Boolean,
+    private var mMTU: Int = 23
+) {
+    private var writeHandle: Byte = 0
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+    @Volatile
+    private var encryptedSequenceNr: Int = 0
 
-import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder;
+    @Volatile
+    private var sharedSessionKey: ByteArray? = null
 
-public class Huami2021ChunkedEncoder {
-    private final BluetoothGattCharacteristic characteristicChunked2021Write;
-
-    private byte writeHandle;
-
-    // These must be volatile, since they are set by a different thread. Sometimes, GB might
-    // attempt to encode a payload before they were set, which will make them not be propagated
-    // to that thread later.
-    private volatile int encryptedSequenceNr;
-    private volatile byte[] sharedSessionKey;
-
-    private final boolean force2021Protocol;
-    private volatile int mMTU = 23;
-
-    public Huami2021ChunkedEncoder(final BluetoothGattCharacteristic characteristicChunked2021Write,
-                                   final boolean force2021Protocol,
-                                   final int mMTU) {
-        this.characteristicChunked2021Write = characteristicChunked2021Write;
-        this.force2021Protocol = force2021Protocol;
-        this.mMTU = mMTU;
+    @Synchronized
+    fun setEncryptionParameters(encryptedSequenceNr: Int, sharedSessionKey: ByteArray) {
+        this.encryptedSequenceNr = encryptedSequenceNr
+        this.sharedSessionKey = sharedSessionKey
     }
 
-    public synchronized void setEncryptionParameters(final int encryptedSequenceNr, final byte[] sharedSessionKey) {
-        this.encryptedSequenceNr = encryptedSequenceNr;
-        this.sharedSessionKey = sharedSessionKey;
+    @Synchronized
+    fun setMTU(mMTU: Int) {
+        this.mMTU = mMTU
     }
 
-    public synchronized void setMTU(int mMTU) {
-        this.mMTU = mMTU;
-    }
-
-    public synchronized void write(final TransactionBuilder builder,
-                                   final short type,
-                                   byte[] data,
-                                   final boolean extended_flags,
-                                   final boolean encrypt) {
+    @Synchronized
+    fun write(
+        builder: TransactionBuilder,
+        type: Short,
+        data: ByteArray,
+        extendedFlags: Boolean,
+        encrypt: Boolean
+    ) {
         if (encrypt && sharedSessionKey == null) {
-            return;
+            return
         }
 
-        writeHandle++;
+        writeHandle++
 
-        int remaining = data.length;
-        int length = data.length;
-        byte count = 0;
-        int header_size = 10;
+        var remaining = data.size
+        val length = data.size
+        var count: Byte = 0
+        var headerSize = 10
 
-        if (extended_flags) {
-            header_size++;
+        if (extendedFlags) {
+            headerSize++
         }
 
-        if (extended_flags && encrypt) {
-            byte[] messagekey = new byte[16];
-            for (int i = 0; i < 16; i++) {
-                messagekey[i] = (byte) (sharedSessionKey[i] ^ writeHandle);
-            }
-            int encrypted_length = length + 8;
-            int overflow = encrypted_length % 16;
+        var encryptedData = data
+        if (extendedFlags && encrypt) {
+            val messageKey = ByteArray(16) { i -> (sharedSessionKey!![i] xor writeHandle).toByte() }
+            var encryptedLength = length + 8
+            val overflow = encryptedLength % 16
             if (overflow > 0) {
-                encrypted_length += (16 - overflow);
+                encryptedLength += (16 - overflow)
             }
 
-            byte[] encryptable_payload = new byte[encrypted_length];
-            System.arraycopy(data, 0, encryptable_payload, 0, length);
-            encryptable_payload[length] = (byte) (encryptedSequenceNr & 0xff);
-            encryptable_payload[length + 1] = (byte) ((encryptedSequenceNr >> 8) & 0xff);
-            encryptable_payload[length + 2] = (byte) ((encryptedSequenceNr >> 16) & 0xff);
-            encryptable_payload[length + 3] = (byte) ((encryptedSequenceNr >> 24) & 0xff);
-            encryptedSequenceNr++;
-            int checksum = getCRC32(encryptable_payload, 0, length + 4);
-            encryptable_payload[length + 4] = (byte) (checksum & 0xff);
-            encryptable_payload[length + 5] = (byte) ((checksum >> 8) & 0xff);
-            encryptable_payload[length + 6] = (byte) ((checksum >> 16) & 0xff);
-            encryptable_payload[length + 7] = (byte) ((checksum >> 24) & 0xff);
-            remaining = encrypted_length;
+            val encryptablePayload = ByteArray(encryptedLength)
+            System.arraycopy(data, 0, encryptablePayload, 0, length)
+            encryptablePayload[length] = (encryptedSequenceNr and 0xff).toByte()
+            encryptablePayload[length + 1] = ((encryptedSequenceNr shr 8) and 0xff).toByte()
+            encryptablePayload[length + 2] = ((encryptedSequenceNr shr 16) and 0xff).toByte()
+            encryptablePayload[length + 3] = ((encryptedSequenceNr shr 24) and 0xff).toByte()
+            encryptedSequenceNr++
+            val checksum = getCRC32(encryptablePayload, 0, length + 4)
+            encryptablePayload[length + 4] = (checksum and 0xff).toByte()
+            encryptablePayload[length + 5] = ((checksum shr 8) and 0xff).toByte()
+            encryptablePayload[length + 6] = ((checksum shr 16) and 0xff).toByte()
+            encryptablePayload[length + 7] = ((checksum shr 24) and 0xff).toByte()
+            remaining = encryptedLength
             try {
-                data = encryptAES(encryptable_payload, messagekey);
-            } catch (Exception e) {
-                return;
+                encryptedData = encryptAES(encryptablePayload, messageKey)
+            } catch (e: Exception) {
+                return
             }
-
         }
 
         while (remaining > 0) {
-            int MAX_CHUNKLENGTH = mMTU - 3 - header_size;
-            int copybytes = Math.min(remaining, MAX_CHUNKLENGTH);
-            byte[] chunk = new byte[copybytes + header_size];
+            val maxChunkLength = mMTU - 3 - headerSize
+            val copyBytes = remaining.coerceAtMost(maxChunkLength)
+            val chunk = ByteArray(copyBytes + headerSize)
 
-            byte flags = 0;
+            var flags: Byte = 0
             if (encrypt) {
-                flags |= 0x08;
+                flags = flags or 0x08
             }
-            if (count == 0) {
-                flags |= 0x01;
-                int i = 4;
-                if (extended_flags) {
-                    i++;
+            if (count.toInt() == 0) {
+                flags = flags or 0x01
+                var i = 4
+                if (extendedFlags) {
+                    i++
                 }
-                chunk[i++] = (byte) (length & 0xff);
-                chunk[i++] = (byte) ((length >> 8) & 0xff);
-                chunk[i++] = (byte) ((length >> 16) & 0xff);
-                chunk[i++] = (byte) ((length >> 24) & 0xff);
-                chunk[i++] = (byte) (type & 0xff);
-                chunk[i] = (byte) ((type >> 8) & 0xff);
+                chunk[i++] = (length and 0xff).toByte()
+                chunk[i++] = ((length shr 8) and 0xff).toByte()
+                chunk[i++] = ((length shr 16) and 0xff).toByte()
+                chunk[i++] = ((length shr 24) and 0xff).toByte()
+                chunk[i++] = (type.toInt() and 0xff).toByte()
+                chunk[i] = ((type.toInt() shr 8) and 0xff).toByte()
             }
-            if (remaining <= MAX_CHUNKLENGTH) {
-                flags |= 0x06; // last chunk?
+            if (remaining <= maxChunkLength) {
+                flags = flags or 0x06 // last chunk?
             }
-            chunk[0] = 0x03;
-            chunk[1] = flags;
-            if (extended_flags) {
-                chunk[2] = 0;
-                chunk[3] = writeHandle;
-                chunk[4] = count;
+            chunk[0] = 0x03
+            chunk[1] = flags
+            if (extendedFlags) {
+                chunk[2] = 0
+                chunk[3] = writeHandle
+                chunk[4] = count
             } else {
-                chunk[2] = writeHandle;
-                chunk[3] = count;
+                chunk[2] = writeHandle
+                chunk[3] = count
             }
 
-            System.arraycopy(data, data.length - remaining, chunk, header_size, copybytes);
-            builder.write(characteristicChunked2021Write, chunk);
-            remaining -= copybytes;
-            header_size = 4;
+            System.arraycopy(encryptedData, encryptedData.size - remaining, chunk, headerSize, copyBytes)
+            builder.write(characteristicChunked2021Write, chunk)
+            remaining -= copyBytes
+            headerSize = 4
 
-            if (extended_flags) {
-                header_size++;
+            if (extendedFlags) {
+                headerSize++
             }
 
-            count++;
+            count++
         }
     }
 
-    public static int getCRC32(byte[] seq,int offset, int length) {
-        CRC32 crc = new CRC32();
-        crc.update(seq,offset,length);
-        return (int) (crc.getValue());
-    }
+    companion object {
+        fun getCRC32(seq: ByteArray, offset: Int, length: Int): Int {
+            val crc = CRC32()
+            crc.update(seq, offset, length)
+            return crc.value.toInt()
+        }
 
-    public static byte[] encryptAES(byte[] value, byte[] secretKey) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
-        @SuppressLint("GetInstance") Cipher ecipher = Cipher.getInstance("AES/ECB/NoPadding");
-        SecretKeySpec newKey = new SecretKeySpec(secretKey, "AES");
-        ecipher.init(Cipher.ENCRYPT_MODE, newKey);
-        return ecipher.doFinal(value);
+        @SuppressLint("GetInstance")
+        @Throws(InvalidKeyException::class, NoSuchPaddingException::class, NoSuchAlgorithmException::class, BadPaddingException::class, IllegalBlockSizeException::class)
+        fun encryptAES(value: ByteArray, secretKey: ByteArray): ByteArray {
+            val ecipher = Cipher.getInstance("AES/ECB/NoPadding")
+            val newKey = SecretKeySpec(secretKey, "AES")
+            ecipher.init(Cipher.ENCRYPT_MODE, newKey)
+            return ecipher.doFinal(value)
+        }
     }
 }
+
