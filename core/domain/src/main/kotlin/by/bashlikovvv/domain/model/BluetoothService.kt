@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothManager
 import by.bashlikovvv.domain.base.BaseResult
 
 interface BluetoothService {
+    val bluetoothEnabled: Boolean
+
     fun getBluetoothManager(): BluetoothManager?
 
     fun getBluetoothAdapter(): BluetoothAdapter?
@@ -15,4 +17,12 @@ interface BluetoothService {
     fun cancelDiscovery(): BaseResult<Unit>
 
     fun getBoundDevices(): List<BluetoothDevice>
+
+    fun addBluetoothDevice(device: BluetoothDevice)
+
+    fun getBluetoothDeviceByAddress(address: String): BluetoothDevice?
+
+    fun bondDevice(address: String)
+
+    fun getDevices(): List<BluetoothDevice>
 }

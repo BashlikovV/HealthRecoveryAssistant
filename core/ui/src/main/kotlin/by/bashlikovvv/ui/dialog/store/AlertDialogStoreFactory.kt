@@ -15,30 +15,20 @@ class AlertDialogStoreFactory(
             initialState = State(),
             executorFactory = ::AlertDialogExecutor,
             reducer = reducerImpl,
-        ) { }
+        ) {}
 
     private val reducerImpl =
         Reducer<State, Msg> { msg ->
             when (msg) {
-                is Msg.ShowDialog -> copy(
-                    isVisible = true,
-                    title = msg.title,
-                    text = msg.text,
-                    confirmButton = msg.confirmButton,
-                    dismissButton = msg.dismissButton,
-                )
-                Msg.HideDialog -> copy(isVisible = false)
+                is Msg.ShowDialog -> copy(isVisible = true)
+                is Msg.HideDialog -> copy(isVisible = false)
             }
         }
 
     internal sealed class Msg {
-        data class ShowDialog(
-            val title: String = "",
-            val text: String = "",
-            val confirmButton: String? = null,
-            val dismissButton: String? = null,
-        ) : Msg()
-        object HideDialog : Msg()
+        data object ShowDialog : Msg()
+
+        data object HideDialog : Msg()
     }
 
     companion object {

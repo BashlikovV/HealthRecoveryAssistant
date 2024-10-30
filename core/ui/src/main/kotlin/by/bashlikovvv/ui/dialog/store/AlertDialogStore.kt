@@ -7,12 +7,7 @@ import kotlinx.parcelize.Parcelize
 
 interface AlertDialogStore : Store<Intent, State, Nothing> {
     sealed class Intent {
-        data class ShowDialog(
-            val title: String = "",
-            val text: String = "",
-            val confirmButton: String? = null,
-            val dismissButton: String? = null,
-        ) : Intent()
+        data object ShowDialog : Intent()
 
         object HideDialog : Intent()
     }
@@ -20,9 +15,5 @@ interface AlertDialogStore : Store<Intent, State, Nothing> {
     @Parcelize
     data class State(
         val isVisible: Boolean = false,
-        val title: String = "",
-        val text: String = "",
-        val confirmButton: String? = null,
-        val dismissButton: String? = null,
     ) : Parcelable
 }

@@ -7,15 +7,18 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.base.SystemServiceProvider
 import by.bashlikovvv.domain.model.BluetoothService
 
 class BluetoothServiceImpl(
     private val systemServiceProvider: SystemServiceProvider,
-    private val checkSelfPermission: (String) -> Int
+    private val checkSelfPermission: (String) -> Int,
 ) : BluetoothService {
+    private var availableDevices = mutableMapOf<String, BluetoothDevice>()
+
+    override val bluetoothEnabled: Boolean = getBluetoothAdapter()?.isEnabled == true
+
     override fun getBluetoothManager(): BluetoothManager? =
         systemServiceProvider.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
 
@@ -47,5 +50,22 @@ class BluetoothServiceImpl(
     @SuppressLint("MissingPermission")
     override fun getBoundDevices(): List<BluetoothDevice> {
         return getBluetoothAdapter()?.bondedDevices?.toList() ?: emptyList()
+    }
+
+    override fun addBluetoothDevice(device: BluetoothDevice) {
+        availableDevices.put(device.address, device)
+    }
+
+    override fun getBluetoothDeviceByAddress(address: String): BluetoothDevice? {
+        return availableDevices.getOrElse(address) { null }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun bondDevice(address: String) {
+        getBluetoothDeviceByAddress(address)?.createBond()
+    }
+
+    override fun getDevices(): List<BluetoothDevice> {
+        return availableDevices.values.toList()
     }
 }

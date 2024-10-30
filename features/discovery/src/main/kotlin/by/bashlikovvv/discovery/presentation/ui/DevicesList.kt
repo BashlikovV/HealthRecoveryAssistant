@@ -8,13 +8,17 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +49,9 @@ internal fun DevicesList(
                 is DiscoveryListItems.Device -> DevicesListDeviceItem(
                     name = item.name,
                     address = item.address,
+                    isInProgress = item.isInProgress,
+                    isBonded = item.isBonded,
+                    isError = item.isError,
                     onItemCLicked = { onDeviceClicked(item.address) }
                 )
                 is DiscoveryListItems.Progress -> DevicesListProgressItem()
@@ -91,6 +98,9 @@ private fun DevicesListProgressItem(
 private fun DevicesListDeviceItem(
     name: String,
     address: String,
+    isInProgress: Boolean,
+    isBonded: Boolean,
+    isError: Boolean,
     modifier: Modifier = Modifier,
     onItemCLicked: () -> Unit,
 ) {
@@ -103,7 +113,43 @@ private fun DevicesListDeviceItem(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(name)
-        Text(address)
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(0.7f),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(name)
+            Text(address)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(0.3f),
+            contentAlignment = Alignment.Center,
+        ) {
+            when {
+                isInProgress -> {
+                    val infiniteTransition = rememberInfiniteTransition()
+                    val progress = infiniteTransition.animateFloat(
+                        initialValue = 0f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(
+                                delayMillis = 250,
+                                easing = LinearEasing,
+                                durationMillis = 1000,
+                            ),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                        label = "Progress"
+                    )
+                    CircularProgressIndicator(progress = { progress.value })
+                }
+                isBonded -> { Text("Bonded") }
+                isError -> { Text("Error") }
+            }
+        }
     }
 }

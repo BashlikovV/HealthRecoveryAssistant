@@ -3,6 +3,7 @@ package by.bashlikovvv.discovery.presentation.ui.store
 import android.os.Parcelable
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
 import by.bashlikovvv.discovery.domain.model.BluetoothState
+import by.bashlikovvv.discovery.domain.model.BondAction
 import by.bashlikovvv.discovery.domain.model.DiscoveryListItems.Device
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore.*
 import com.arkivanov.mvikotlin.core.store.Store
@@ -12,16 +13,17 @@ interface DiscoveryStore : Store<Intent, State, Label> {
     sealed class Intent {
         data object DiscoveryButtonClicked : Intent()
 
-        data class ConnectDevice(val candidate: String) : Intent()
-
-        data class ShowDialog(
-            val title: String = "",
-            val text: String = "Ok",
-            val confirmButton: String? = null,
-            val dismissButton: String? = null,
-        ) : Intent()
-
         data class OnBluetoothAction(val action: BluetoothAction) : Intent()
+
+        data object StartDiscovery : Intent()
+
+        data object CancelDiscovery : Intent()
+
+        data class BondDevice(val address: String) : Intent()
+
+        data class OnBondAction(val action: BondAction) : Intent()
+
+        data object Vibrate : Intent()
     }
 
     @Parcelize
@@ -32,11 +34,6 @@ interface DiscoveryStore : Store<Intent, State, Label> {
     ) : Parcelable
 
     sealed class Label {
-        data class ShowDialog(
-            val title: String = "",
-            val text: String = "",
-            val confirmButton: String? = null,
-            val dismissButton: String? = null,
-        ) : Label()
+        data object TurnOnBluetooth : Label()
     }
 }

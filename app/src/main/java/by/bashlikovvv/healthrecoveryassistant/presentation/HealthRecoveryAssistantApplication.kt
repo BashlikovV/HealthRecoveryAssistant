@@ -2,6 +2,7 @@ package by.bashlikovvv.healthrecoveryassistant.presentation
 
 import android.app.Application
 import by.bashlikovvv.common.worker.WorkManagerSource
+import by.bashlikovvv.healthrecoveryassistant.di.bluetoothModule
 import by.bashlikovvv.healthrecoveryassistant.di.coreModule
 import by.bashlikovvv.healthrecoveryassistant.di.dataModule
 import by.bashlikovvv.healthrecoveryassistant.di.databaseModule
@@ -24,6 +25,7 @@ class HealthRecoveryAssistantApplication : Application() {
             modules(
                 coreModule,
                 databaseModule,
+                bluetoothModule,
                 dataModule,
             )
         }

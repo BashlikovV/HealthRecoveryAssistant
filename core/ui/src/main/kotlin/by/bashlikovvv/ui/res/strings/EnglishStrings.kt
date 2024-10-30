@@ -10,4 +10,5 @@ internal val englishStrings = AppStrings(
     scheduleFileData = "schedule file data",
     startDiscoveringNewDevices = "start discovering new devices",
     stopDiscoveringDevices = "stop discovering devices",
+    ok = "Ok",
 )

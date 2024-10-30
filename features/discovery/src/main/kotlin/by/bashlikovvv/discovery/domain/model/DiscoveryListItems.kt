@@ -10,6 +10,9 @@ sealed class DiscoveryListItems(open val id: Int) : Parcelable {
         override val id: Int,
         val name: String,
         val address: String,
+        val isInProgress: Boolean = false,
+        val isBonded: Boolean = false,
+        val isError: Boolean = false,
     ) : DiscoveryListItems(id)
 
     @Parcelize

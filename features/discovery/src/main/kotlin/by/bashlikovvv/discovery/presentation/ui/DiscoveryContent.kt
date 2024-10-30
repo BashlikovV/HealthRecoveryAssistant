@@ -2,29 +2,44 @@ package by.bashlikovvv.discovery.presentation.ui
 
 import android.Manifest
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import by.bashlikovvv.discovery.domain.contract.BluetoothReceiver
+import by.bashlikovvv.discovery.domain.contract.BondingReceiver
 import by.bashlikovvv.discovery.domain.model.DiscoveryListItems
 import by.bashlikovvv.discovery.presentation.ui.component.DiscoveryComponent
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore
+import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore.*
 import by.bashlikovvv.ui.composable.ScreenContent
 import by.bashlikovvv.ui.dialog.CommonAlertDialog
+import by.bashlikovvv.ui.res.AppRes
 import by.bashlikovvv.ui.theme.HealthRecoveryAssistantTheme
+import by.bashlikovvv.util.isPermissionGranted
+import by.bashlikovvv.util.requestPermissionsCompat
 
 @Composable
 fun DiscoveryContent(
@@ -33,34 +48,87 @@ fun DiscoveryContent(
 ) {
     ScreenContent(
         contractProvider = component.store,
-        initialState = DiscoveryStore.State(),
+        initialState = State(),
     ) { state, label ->
+        var dialogTitle: String by remember { mutableStateOf("") }
         val context = LocalContext.current
         val requestMultiplePermissionsLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions()
         ) { map ->
             if (map.containsValue(false)) {
-                dispatchIntent(
-                    DiscoveryStore.Intent.ShowDialog(
-                        "Not all permissions granted",
-                        confirmButton = "Ok"
-                    )
-                )
+                dialogTitle = "Permissions not granted"
+                component.alertDialogComponent.showDialog()
+            }
+        }
+        val startActivityResultLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                dispatchIntent(DiscoveryStore.Intent.StartDiscovery)
             }
         }
         DisposableEffect(Unit) {
             registerBluetoothReceiver(context, component.bluetoothReceiver)
+            registerBondReceiver(context, component.bondingReceiver)
             requestPermissions(context as Activity, requestMultiplePermissionsLauncher)
-            onDispose { unregisterBluetoothReceiver(context, component.bluetoothReceiver) }
+            onDispose {
+                context.unregisterReceiverWithCheck(component.bluetoothReceiver)
+                context.unregisterReceiverWithCheck(component.bondingReceiver)
+            }
         }
+        LabelProcessionBlock(label, startActivityResultLauncher)
         DiscoveryScreenContent(
             state = state,
             modifier = modifier,
-            onDiscoveryClicked = { dispatchIntent(DiscoveryStore.Intent.DiscoveryButtonClicked) }
+            onDiscoveryClicked = { dispatchIntent(DiscoveryStore.Intent.DiscoveryButtonClicked) },
+            onDeviceClicked = { address -> dispatchIntent(DiscoveryStore.Intent.BondDevice(address)) },
+            onVibrate = { dispatchIntent(DiscoveryStore.Intent.Vibrate) }
         )
         CommonAlertDialog(
-            component = component.alertDialogComponent
+            component = component.alertDialogComponent,
+            confirmButton = {
+                Button(onClick = { dismiss() }) {
+                    Text(AppRes.strings.ok)
+                }
+            },
+            title = { Text(dialogTitle) }
         )
+    }
+}
+
+@Composable
+private fun LabelProcessionBlock(
+    label: Label?,
+    startActivityResultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
+    LaunchedEffect(label) {
+        when (label) {
+            Label.TurnOnBluetooth -> startActivityResultLauncher.launch(
+                Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            )
+
+            null -> Unit
+        }
+    }
+}
+
+private fun registerBondReceiver(
+    context: Context,
+    receiver: BondingReceiver
+) {
+    val bondingIntents = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+    ContextCompat.registerReceiver(
+        context,
+        receiver,
+        bondingIntents,
+        ContextCompat.RECEIVER_EXPORTED
+    )
+}
+
+private fun Context.unregisterReceiverWithCheck(receiver: BroadcastReceiver) {
+    try {
+        unregisterReceiver(receiver)
+    } catch (_: IllegalStateException) {
     }
 }
 
@@ -83,74 +151,44 @@ private fun registerBluetoothReceiver(
     )
 }
 
-private fun unregisterBluetoothReceiver(
-    context: Context,
-    receiver: BluetoothReceiver,
-) {
-    try {
-        context.unregisterReceiver(receiver)
-    } catch (_: IllegalStateException) {
-    }
-}
-
 private fun requestPermissions(
     activity: Activity,
     requestMultiplePermissionsLauncher: ActivityResultLauncher<Array<String>>,
 ) {
     val wantedPermissions = mutableListOf<String>()
-    if (ActivityCompat.checkSelfPermission(
-            activity,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
+    if (!activity.isPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
         wantedPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
     }
-    if (ActivityCompat.checkSelfPermission(
-            activity,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
+    if (!activity.isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
         wantedPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
     }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (!activity.isPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            wantedPermissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
+    }
     if (wantedPermissions.isNotEmpty()) {
-        ActivityCompat.requestPermissions(activity, wantedPermissions.toTypedArray(), 0)
+        wantedPermissions.forEach {
+            activity.requestPermissionsCompat(arrayOf(it))
+        }
         wantedPermissions.clear()
     }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                0
-            )
-        }
-    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH)) {
+            wantedPermissions.add(Manifest.permission.BLUETOOTH)
+        }
+        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH_ADMIN)) {
+            wantedPermissions.add(Manifest.permission.BLUETOOTH_ADMIN)
+        }
+        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH_SCAN)) {
             wantedPermissions.add(Manifest.permission.BLUETOOTH_SCAN)
         }
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH_CONNECT)) {
             wantedPermissions.add(Manifest.permission.BLUETOOTH_CONNECT)
         }
     }
     if (wantedPermissions.isNotEmpty()) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            ActivityCompat.requestPermissions(activity, wantedPermissions.toTypedArray(), 0)
-        } else {
-            requestMultiplePermissionsLauncher.launch(wantedPermissions.toTypedArray())
-        }
+        requestMultiplePermissionsLauncher.launch(wantedPermissions.toTypedArray())
     }
 }
 
@@ -158,7 +196,7 @@ private fun requestPermissions(
 private fun DiscoveryScreenContentPreview() {
     HealthRecoveryAssistantTheme {
         DiscoveryScreenContent(
-            state = DiscoveryStore.State(
+            state = State(
                 isScanning = true,
                 devices = listOf(
                     DiscoveryListItems.Device(
@@ -169,6 +207,8 @@ private fun DiscoveryScreenContentPreview() {
                 )
             ),
             onDiscoveryClicked = {},
+            onDeviceClicked = {},
+            onVibrate = {}
         )
     }
 }

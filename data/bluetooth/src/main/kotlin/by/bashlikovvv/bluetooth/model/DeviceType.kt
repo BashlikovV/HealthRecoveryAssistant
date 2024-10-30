@@ -1,16 +1,9 @@
 package by.bashlikovvv.bluetooth.model
 
-import by.bashlikovvv.bluetooth.coordinator.UnknownDeviceCoordinator
+import by.bashlikovvv.bluetooth.devices.unknown.UnknownDeviceCoordinator
+import kotlin.reflect.KClass
 
-enum class DeviceType(coordinatorClass: Class<out DeviceCoordinator>) {
-    UNKNOWN(UnknownDeviceCoordinator::class.java);
-
-    private var coordinator: DeviceCoordinator = coordinatorClass.declaredConstructors.first().newInstance() as DeviceCoordinator
-
-    fun getDeviceCoordinator(): DeviceCoordinator {
-        return coordinator
-    }
-
-    val isSupported: Boolean
-        get() = this != UNKNOWN
+enum class DeviceType(val coordinatorClass: KClass<out DeviceCoordinator>) {
+    UNKNOWN(UnknownDeviceCoordinator::class),
+    MI_BAND_5(MiBand5Coordinator::class),
 }

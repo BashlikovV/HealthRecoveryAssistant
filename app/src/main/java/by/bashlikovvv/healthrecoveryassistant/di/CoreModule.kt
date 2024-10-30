@@ -37,7 +37,7 @@ val coreModule = module {
             systemServiceProvider = get(),
             checkSelfPermission = { permission ->
                 ActivityCompat.checkSelfPermission(androidContext(), permission)
-            }
+            },
         )
     }
 }
