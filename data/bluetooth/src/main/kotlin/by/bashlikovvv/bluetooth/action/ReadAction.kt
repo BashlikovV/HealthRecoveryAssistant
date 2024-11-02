@@ -12,7 +12,7 @@ class ReadAction(characteristic: BluetoothGattCharacteristic) : BtLEAction(chara
         if (((properties ?: 0) and BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
             return gatt.readCharacteristic(characteristic)
         }
-        return false;
+        return false
     }
 
     override fun expectsResult(): Boolean = true
