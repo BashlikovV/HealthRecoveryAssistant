@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import by.bashlikovvv.discovery.domain.model.DiscoveryListItems
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore
 import by.bashlikovvv.ui.res.AppRes
+import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 internal fun DiscoveryScreenContent(
@@ -40,9 +41,10 @@ internal fun DiscoveryScreenContent(
         if (state.devices.isNotEmpty()) {
             DevicesList(
                 list = if (state.isScanning) {
-                    state.devices + listOf(
-                        DiscoveryListItems.Progress(state.devices.maxOf { it.id } + 1)
-                    )
+                    mutableListOf<DiscoveryListItems>().apply {
+                        addAll(state.devices)
+                        add(DiscoveryListItems.Progress(state.devices.maxOf { it.id } + 1))
+                    }.toPersistentList()
                 } else {
                     state.devices
                 },

@@ -1,5 +1,6 @@
 package by.bashlikovvv.bluetooth.devices.miband
 
+import android.util.Log
 import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
@@ -14,6 +15,16 @@ class MiBand5Support(
     device: GBDevice,
     provider: QueueEntitiesProvider,
 ) : HuamiSupport(key ,device, provider) {
+    override fun connect(): Boolean {
+        repeat(5) {
+            if (super.connect()) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     override fun onFindDevice(start: Boolean) {
         mQueue?.let { queueNotNull ->
             val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_ALERT_LEVEL)
@@ -49,6 +60,10 @@ class MiBand5Support(
             tb.writeToChunkedOld(characteristics, 2, reminderRepresentation)
             tb.queue(queueNotNull)
         }
+    }
+
+    override fun handle2021Payload(type: Short, payload: ByteArray) {
+        Log.i("MYTAG", "type: $type, payload: $payload")
     }
 
     companion object {

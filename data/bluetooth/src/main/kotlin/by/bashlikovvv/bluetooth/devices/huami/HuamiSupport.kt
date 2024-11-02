@@ -15,7 +15,7 @@ import java.util.GregorianCalendar
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-open class HuamiSupport(
+abstract class HuamiSupport(
     private val key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
@@ -66,11 +66,20 @@ open class HuamiSupport(
         return builder
     }
 
+    override fun onCharacteristicRead(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int
+    ): Boolean  {
+        return super.onCharacteristicRead(gatt, characteristic, status)
+    }
+
+
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic
     ): Boolean {
-        return false
+        return super.onCharacteristicChanged(gatt, characteristic)
     }
 
     fun enableNotifications(
@@ -79,6 +88,7 @@ open class HuamiSupport(
     ): HuamiSupport {
         builder.notify(getCharacteristic(UUID_CHARACTERISTIC_NOTIFICATION), enable)
         builder.notify(getCharacteristic(UUID_CHARACTERISTIC_AUTH), enable)
+//        builder.notify(getCharacteristic(UUID.fromString("00002a46-0000-1000-8000-00805f9b34fb")), enable)
         characteristicChunked2021Read?.let {
             builder.notify(characteristicChunked2021Read, enable)
         }
@@ -193,10 +203,6 @@ open class HuamiSupport(
             (value and 0xFF).toByte(),
             ((value shr 8) and 0xFF).toByte()
         )
-    }
-
-    override fun handle2021Payload(type: Short, payload: ByteArray) {
-
     }
 
     companion object {

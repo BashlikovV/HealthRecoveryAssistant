@@ -2,8 +2,10 @@ package by.bashlikovvv.bluetooth.transactioin
 
 import android.bluetooth.BluetoothGattCharacteristic
 import by.bashlikovvv.bluetooth.action.NotifyAction
+import by.bashlikovvv.bluetooth.action.ReadAction
 import by.bashlikovvv.bluetooth.action.WriteAction
 import by.bashlikovvv.bluetooth.model.BtLEAction
+import by.bashlikovvv.bluetooth.model.GattCallback
 import by.bashlikovvv.bluetooth.model.Transaction
 import by.bashlikovvv.bluetooth.service.BtLEQueue
 import kotlin.experimental.or
@@ -66,6 +68,14 @@ class TransactionBuilder {
     fun notify(characteristic: BluetoothGattCharacteristic?, enable: Boolean): TransactionBuilder {
         if (characteristic == null) return this
         return add(createNotifyAction(characteristic, enable))
+    }
+
+    fun read(characteristic: BluetoothGattCharacteristic): TransactionBuilder {
+        return add(ReadAction(characteristic))
+    }
+
+    fun setCallback(callback: GattCallback) {
+        transaction.setCallback(callback)
     }
 
     private fun createNotifyAction(

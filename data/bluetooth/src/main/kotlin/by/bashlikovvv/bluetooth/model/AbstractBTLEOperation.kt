@@ -2,6 +2,7 @@ package by.bashlikovvv.bluetooth.model
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.util.UUID
 
@@ -18,7 +19,7 @@ import java.util.UUID
  * Note: by default all Gatt events are forwarded to AbstractBTLEDeviceSupport, subclasses may override
  * this behavior.
  */
-abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mSupport: T) {
+abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mSupport: T) : GattCallback {
 
     private var name: String? = null
 
@@ -79,12 +80,59 @@ abstract class AbstractBTLEOperation<T : AbstractDeviceSupport>(protected val mS
         return mSupport.createTransactionBuilder(taskName)
     }
 
-    open fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?): Boolean {
-        return gatt?.let { gatt ->
-            characteristic?.let { characteristic ->
-                mSupport.onCharacteristicChanged(gatt, characteristic)
-            }
-        } == true
+    override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+        support.onConnectionStateChange(gatt, status, newState)
+    }
+
+    override fun onServicesDiscovered(gatt: BluetoothGatt) {
+        support.onServicesDiscovered(gatt)
+    }
+
+    override fun onCharacteristicRead(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int
+    ): Boolean {
+        return support.onCharacteristicRead(gatt, characteristic, status)
+    }
+
+    override fun onCharacteristicWrite(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int
+    ): Boolean {
+        return support.onCharacteristicWrite(gatt, characteristic, status)
+    }
+
+    override fun onCharacteristicChanged(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic
+    ): Boolean {
+        return mSupport.onCharacteristicChanged(gatt, characteristic)
+    }
+
+    override fun onDescriptorRead(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor,
+        status: Int
+    ): Boolean {
+        return support.onDescriptorRead(gatt, descriptor, status)
+    }
+
+    override fun onDescriptorWrite(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor,
+        status: Int
+    ): Boolean {
+        return support.onDescriptorWrite(gatt, descriptor, status)
+    }
+
+    override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
+        support.onReadRemoteRssi(gatt, rssi, status)
+    }
+
+    override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+        support.onMtuChanged(gatt, mtu, status)
     }
 
     protected fun setName(name: String) {

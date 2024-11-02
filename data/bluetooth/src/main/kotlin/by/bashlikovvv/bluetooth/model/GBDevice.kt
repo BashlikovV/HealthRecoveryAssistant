@@ -6,7 +6,8 @@ data class GBDevice(
     val device: BluetoothDevice,
     val deviceType: DeviceType,
 ) {
-    private var state = State.NOT_CONNECTED
+    var state = State.NOT_CONNECTED
+        private set
 
     val isInitialized: Boolean
         get() = state == State.SCANNED || state.equalsOrHigherThan(State.INITIALIZED)

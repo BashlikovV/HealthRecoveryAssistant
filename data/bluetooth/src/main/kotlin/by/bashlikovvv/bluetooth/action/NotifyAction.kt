@@ -76,8 +76,8 @@ class NotifyAction : BtLEAction {
                 return false
             }
         } else {
-            descriptor.characteristic.setValue(value)
-            return gatt.writeCharacteristic(descriptor.characteristic)
+            if (!descriptor.setValue(value)) return false
+            return gatt.writeDescriptor(descriptor)
         }
 
         return true

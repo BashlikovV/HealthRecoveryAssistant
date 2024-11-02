@@ -30,7 +30,7 @@ import kotlin.experimental.xor
 
 class Huami2021ChunkedDecoder(
     private val force2021Protocol: Boolean,
-    private val huami2021Handler: Huami2021Handler
+    private var huami2021Handler: Huami2021Handler
 ) {
     private var currentHandle: Byte? = null
     private var currentType = 0
@@ -118,6 +118,10 @@ class Huami2021ChunkedDecoder(
         }
 
         return needsAck
+    }
+
+    fun setHuami2021Handler(huami2021Handler: Huami2021Handler) {
+        this.huami2021Handler = huami2021Handler
     }
 
     companion object {

@@ -7,6 +7,8 @@ import by.bashlikovvv.discovery.domain.model.BondAction
 import by.bashlikovvv.discovery.domain.model.DiscoveryListItems.Device
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore.*
 import com.arkivanov.mvikotlin.core.store.Store
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.parcelize.Parcelize
 
 interface DiscoveryStore : Store<Intent, State, Label> {
@@ -17,23 +19,32 @@ interface DiscoveryStore : Store<Intent, State, Label> {
 
         data object StartDiscovery : Intent()
 
-        data object CancelDiscovery : Intent()
-
         data class BondDevice(val address: String) : Intent()
 
         data class OnBondAction(val action: BondAction) : Intent()
 
         data object Vibrate : Intent()
+
+        data class OnPermissionResult(
+            val permission: String,
+            val granted: Boolean,
+        ) : Intent()
     }
 
     @Parcelize
     data class State(
         val isScanning: Boolean = false,
         val bluetoothState: BluetoothState = BluetoothState.Off,
-        val devices: List<Device> = emptyList(),
+        val devices: ImmutableList<Device> = persistentListOf(),
     ) : Parcelable
 
     sealed class Label {
         data object TurnOnBluetooth : Label()
+
+        data class RequestPermission(val permission: String) : Label()
+
+        data object StartDiscovery : Label()
+
+        data object CancelDiscovery : Label()
     }
 }

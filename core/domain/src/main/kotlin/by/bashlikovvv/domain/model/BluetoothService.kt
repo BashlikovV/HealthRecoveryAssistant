@@ -22,7 +22,7 @@ interface BluetoothService {
 
     fun getBluetoothDeviceByAddress(address: String): BluetoothDevice?
 
-    fun bondDevice(address: String)
+    fun bondDevice(address: String): BaseResult<Boolean>
 
     fun getDevices(): List<BluetoothDevice>
 }

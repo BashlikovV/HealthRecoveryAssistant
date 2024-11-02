@@ -1,24 +1,22 @@
 package by.bashlikovvv.bluetooth.model
 
-import android.bluetooth.BluetoothGattCallback
-
 class Transaction(
     taskName: String,
 ) : AbstractTransaction(taskName) {
     private val _actions = mutableListOf<BtLEAction>()
     val actions: List<BtLEAction> get() = _actions
 
-    var callback: BluetoothGattCallback? = null
+    var callback: GattCallback? = null
         private set
 
     var isGattCallbackModified: Boolean = false
         private set
 
-    constructor(taskName: String, callback: BluetoothGattCallback) : this(taskName) {
+    constructor(taskName: String, callback: GattCallback) : this(taskName) {
         this.callback = callback
     }
 
-    fun setCallback(callback: BluetoothGattCallback) {
+    fun setCallback(callback: GattCallback) {
         this.callback = callback
         isGattCallbackModified = true
     }

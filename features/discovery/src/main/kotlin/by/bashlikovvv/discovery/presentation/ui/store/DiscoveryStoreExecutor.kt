@@ -15,7 +15,9 @@ import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.BluetoothService
 import by.bashlikovvv.domain.model.ReminderDescription
 import by.bashlikovvv.ui.base.BaseCoroutineExecutor
+import by.bashlikovvv.ui.base.PermissionsController
 import by.bashlikovvv.util.ext.deviceName
+import kotlinx.coroutines.delay
 import org.koin.core.component.inject
 import java.util.Calendar
 import java.util.TimeZone
@@ -25,55 +27,94 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
 
     private val bluetoothRepository: BluetoothRepository by inject()
 
+    private val permissionsController = PermissionsController(
+        callbacks = object : PermissionsController.Callbacks {
+            override fun requestPermission(permission: String) {
+                launchMain {
+                    publish(Label.RequestPermission(permission))
+                }
+            }
+
+            override fun onPermissionResult(permission: String, granted: Boolean) {}
+        }
+    )
+
     override fun executeIntent(intent: Intent, getState: () -> State) {
         when (intent) {
             is Intent.DiscoveryButtonClicked -> onDiscoveryButtonClicked(getState())
             is Intent.OnBluetoothAction -> onBluetoothAction(intent)
             is Intent.StartDiscovery -> startDiscovery()
-            is Intent.CancelDiscovery -> cancelDiscovery()
             is Intent.BondDevice -> onBondIntent(intent.address)
             is Intent.OnBondAction -> onBondAction(intent.action)
             is Intent.Vibrate -> {
-                val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                calendar.add(Calendar.MINUTE, 1)
-                bluetoothRepository.sendCreateReminderCommand(
-                    ReminderDescription(
-                        message = "test msg",
-                        date = calendar.time
+                launchIO {
+                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                    calendar.add(Calendar.MINUTE, 1)
+                    bluetoothRepository.sendCreateReminderCommand(
+                        ReminderDescription(
+                            message = "test msg",
+                            date = calendar.time
+                        )
                     )
-                )
-                bluetoothRepository.sendFindDeviceCommand(true)
+                    bluetoothRepository.sendFindDeviceCommand(true)
+                }
             }
+
+            is Intent.OnPermissionResult -> onPermissionResult(intent.permission, intent.granted)
+        }
+    }
+
+    override fun executeAction(action: Action, getState: () -> State) {
+        when (action) {
+            is Action.Initialize -> requestPermission(action.permissions)
+        }
+    }
+
+    private fun onPermissionResult(permission: String, granted: Boolean) {
+        permissionsController.onPermissionResult(permission, granted)
+    }
+
+    private fun requestPermission(permissions: List<String>) {
+        launchIO {
+            delay(750)
+            permissionsController.requestPermissions(permissions)
         }
     }
 
     private fun cancelDiscovery() {
-        when(bluetoothService.cancelDiscovery()) {
+        when (bluetoothService.cancelDiscovery()) {
             is BaseResult.Success -> {
                 dispatch(Msg.Discover(false))
+                publish(Label.CancelDiscovery)
             }
+
             is BaseResult.Failure -> Unit
         }
     }
 
     private fun startDiscovery() {
-        when(bluetoothService.startDiscovery()) {
+        when (bluetoothService.startDiscovery()) {
             is BaseResult.Success -> {
                 dispatch(Msg.Discover(true))
+                publish(Label.StartDiscovery)
             }
+
             is BaseResult.Failure -> Unit
         }
     }
 
     private fun onBondAction(bondAction: BondAction) {
-        when(bondAction) {
+        when (bondAction) {
             is BondAction.Bonded -> {
                 dispatch(Msg.DeviceBonded(bondAction.device.address))
-                bluetoothRepository.connect(device = bondAction.device)
+                launchIO {
+                    bluetoothRepository.connect(device = bondAction.device)
+                }
             }
+
             is BondAction.Bonding -> dispatch(Msg.DeviceBonding(bondAction.device.address))
             is BondAction.None -> dispatch(Msg.DeviceError(bondAction.device.address))
-            is BondAction.Default -> { }
+            is BondAction.Default -> {}
         }
     }
 
@@ -82,7 +123,9 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
         bluetoothService.bondDevice(address)
         // TODO: remove
         bluetoothService.getBluetoothDeviceByAddress(address)?.let {
-            bluetoothRepository.connect(it)
+            launchIO {
+                bluetoothRepository.connect(it)
+            }
         }
     }
 
@@ -91,13 +134,13 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
         dispatch(Msg.Discover(isScanning))
         if (isScanning) {
             if (!bluetoothService.bluetoothEnabled) publish(Label.TurnOnBluetooth)
-            bluetoothService.startDiscovery()
+            startDiscovery()
             bluetoothService.getBoundDevices().forEach { device ->
                 bluetoothService.addBluetoothDevice(device)
                 addDevice(device, true)
             }
         } else {
-            bluetoothService.cancelDiscovery()
+            cancelDiscovery()
         }
     }
 
@@ -110,17 +153,19 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
                 rssi = action.rssi,
                 uuids = null
             )
+
             is BluetoothAction.UUID -> scheduleProcessing(
                 device = action.device,
                 rssi = action.rssi,
                 uuids = action.uuids
             )
+
             is BluetoothAction.BondStateChanged -> handleDeviceBonded(action.device)
         }
     }
 
     private fun bluetoothStateChanged(state: Int) {
-        val state = when(state) {
+        val state = when (state) {
             BluetoothAdapter.STATE_ON -> BluetoothState.On
             BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.TurningOn
             BluetoothAdapter.STATE_OFF -> BluetoothState.Off

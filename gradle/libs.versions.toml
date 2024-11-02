@@ -1,29 +1,30 @@
 [versions]
 agp = "8.6.1"
-kotlin = "2.0.10"
-coreKtx = "1.13.1"
+kotlin = "2.0.20"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-compose = "1.6.11"
-lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.2"
-composeBom = "2024.09.03"
+compose-grdle-plugin = "1.6.11"
+lifecycleRuntimeKtx = "2.8.7"
+activityCompose = "1.9.3"
+composeBom = "2024.10.01"
 desugar_jdk_libs = "2.1.2"
 mvikotlin = "3.3.0"
 decompose = "3.1.0"
 koin = "3.5.6"
 playServicesWearable = "18.2.0"
 room = "2.6.1"
-ksp = "2.0.10-1.0.24"
+ksp = "2.0.20-1.0.24"
 kotlinx-serialization-json = "1.7.1"
-workRuntimeKtx = "2.9.1"
+workRuntimeKtx = "2.10.0"
+kotlinxCollectionsImmutable = "0.3.7"
 
 [libraries]
 # Plugins for composite build
 gradleplugin-android = { module = "com.android.tools.build:gradle", version.ref = "agp" }
-gradleplugin-compose = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
-gradleplugin-composeCompiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "compose" }
+gradleplugin-compose = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-grdle-plugin" }
+gradleplugin-composeCompiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "compose-grdle-plugin" }
 gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
@@ -64,6 +65,9 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+
+# Immutable collection
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 
 [plugins]
 healthrecoveryassistant-android-application = { id = "healthrecoveryassistant.android.application", version = "unspecified" }
