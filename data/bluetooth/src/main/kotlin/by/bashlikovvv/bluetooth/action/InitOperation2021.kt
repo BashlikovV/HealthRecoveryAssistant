@@ -2,14 +2,14 @@ package by.bashlikovvv.bluetooth.action
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import by.bashlikovv.bluetooth.util.CryptoUtils
+import by.bashlikovv.bluetooth.util.ECDH_B163
 import by.bashlikovvv.bluetooth.devices.huami.Huami2021ChunkedDecoder
 import by.bashlikovvv.bluetooth.devices.huami.Huami2021ChunkedEncoder
 import by.bashlikovvv.bluetooth.devices.huami.Huami2021Handler
 import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
-import by.bashlikovvv.bluetooth.util.CryptoUtils
-import by.bashlikovvv.bluetooth.util.ECDH_B163
 import java.util.Random
 import java.util.UUID
 import kotlin.experimental.xor
@@ -50,6 +50,7 @@ class InitOperation2021 : InitOperation, Huami2021Handler {
     ) {
         this.huami2021ChunkedEncoder = huami2021ChunkedEncoder
         this.huami2021ChunkedDecoder = huami2021ChunkedDecoder
+        this.huami2021ChunkedDecoder?.setHuami2021Handler(this)
     }
 
     override fun doPerform() {
@@ -61,7 +62,7 @@ class InitOperation2021 : InitOperation, Huami2021Handler {
         sendPubKeyCommand[1] = 0x02
         sendPubKeyCommand[2] = 0x00
         sendPubKeyCommand[3] = 0x02
-        System.arraycopy(publicEC!!, 0, sendPubKeyCommand, 4, 48)
+        System.arraycopy(publicEC, 0, sendPubKeyCommand, 4, 48)
         huami2021ChunkedEncoder?.write(
             builder,
             CHUNKED2021_ENDPOINT_AUTH,
@@ -72,14 +73,13 @@ class InitOperation2021 : InitOperation, Huami2021Handler {
     }
 
     override fun onCharacteristicChanged(
-        gatt: BluetoothGatt?,
-        characteristic: BluetoothGattCharacteristic?
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic
     ): Boolean {
-        val characteristicUUID = characteristic?.uuid
+        val characteristicUUID = characteristic.uuid
         if (UUID_CHARACTERISTIC_CHUNKEDTRANSFER_2021_READ != characteristicUUID) {
             return super.onCharacteristicChanged(gatt, characteristic)
         }
-
         val value = characteristic.value
         if (value.size <= 1 || value.first() != (0x03).toByte()) {
             return super.onCharacteristicChanged(gatt, characteristic)

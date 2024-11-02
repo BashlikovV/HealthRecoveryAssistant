@@ -6,8 +6,8 @@ import by.bashlikovvv.bluetooth.service.BtLEQueue
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.util.UUID
 
-abstract class AbstractDeviceSupport : DeviceSupport {
-    protected val device: GBDevice
+abstract class AbstractDeviceSupport : DeviceSupport, GattCallback {
+    val device: GBDevice
 
     protected val queueEntitiesProvider: QueueEntitiesProvider
 
@@ -34,23 +34,22 @@ abstract class AbstractDeviceSupport : DeviceSupport {
      */
     override fun onFindDevice(start: Boolean) {}
 
-    /**
-     * @param gatt
-     * @see BluetoothGattCallback#onServicesDiscovered(BluetoothGatt, int)
-     */
-    abstract fun onServicesDiscovered(gatt: BluetoothGatt)
-
     abstract fun performInitialized(taskName: String): TransactionBuilder
 
     abstract fun createTransactionBuilder(taskName: String): TransactionBuilder
 
     abstract fun getCharacteristic(uuid: UUID): BluetoothGattCharacteristic?
 
-    abstract fun onCharacteristicChanged(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic
-    ): Boolean
+    override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {}
 
+    override fun onServicesDiscovered(gatt: BluetoothGatt) {
+        mQueue?.let { queueNotNull ->
+            val builder = createTransactionBuilder("Initializing device")
+            initializeDevice(builder).queue(queueNotNull)
+        }
+    }
+
+    open fun initializeDevice(builder: TransactionBuilder): TransactionBuilder = builder
 
     abstract fun performImmediately(builder: TransactionBuilder)
 }

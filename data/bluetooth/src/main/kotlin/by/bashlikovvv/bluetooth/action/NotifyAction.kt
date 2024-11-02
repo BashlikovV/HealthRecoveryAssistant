@@ -68,8 +68,6 @@ class NotifyAction : BtLEAction {
         descriptor: BluetoothGattDescriptor,
         value: ByteArray
     ): Boolean {
-        val charUuid = descriptor.characteristic.uuid.toString()
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             try {
                 val result = gatt.writeDescriptor(descriptor, value)
@@ -79,7 +77,7 @@ class NotifyAction : BtLEAction {
             }
         } else {
             if (!descriptor.setValue(value)) return false
-            if (!gatt.writeDescriptor(descriptor)) return false
+            return gatt.writeDescriptor(descriptor)
         }
 
         return true

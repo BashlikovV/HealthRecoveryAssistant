@@ -15,7 +15,8 @@ import java.util.GregorianCalendar
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-open class HuamiSupport(
+abstract class HuamiSupport(
+    private val key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
 ) : AbstractBtLEDeviceSupport(device, provider), Huami2021Handler {
@@ -45,7 +46,7 @@ open class HuamiSupport(
                 getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER_2021_WRITE)
             if (characteristicChunked2021Write != null && huami2021ChunkedEncoder == null) {
                 huami2021ChunkedEncoder = Huami2021ChunkedEncoder(
-                    characteristicChunked2021Write, true, getMtu()
+                    characteristicChunked2021Write!!, true, getMtu()
                 )
             }
             InitOperation2021(
@@ -54,7 +55,7 @@ open class HuamiSupport(
                 cryptFlags = cryptFlags,
                 support = this,
                 builder = builder,
-                authKey = "",
+                authKey = key,
                 huami2021ChunkedEncoder = huami2021ChunkedEncoder,
                 huami2021ChunkedDecoder = huami2021ChunkedDecoder,
             ).perform()
@@ -65,11 +66,20 @@ open class HuamiSupport(
         return builder
     }
 
+    override fun onCharacteristicRead(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int
+    ): Boolean  {
+        return super.onCharacteristicRead(gatt, characteristic, status)
+    }
+
+
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic
     ): Boolean {
-        return false
+        return super.onCharacteristicChanged(gatt, characteristic)
     }
 
     fun enableNotifications(
@@ -78,6 +88,7 @@ open class HuamiSupport(
     ): HuamiSupport {
         builder.notify(getCharacteristic(UUID_CHARACTERISTIC_NOTIFICATION), enable)
         builder.notify(getCharacteristic(UUID_CHARACTERISTIC_AUTH), enable)
+//        builder.notify(getCharacteristic(UUID.fromString("00002a46-0000-1000-8000-00805f9b34fb")), enable)
         characteristicChunked2021Read?.let {
             builder.notify(characteristicChunked2021Read, enable)
         }
@@ -192,10 +203,6 @@ open class HuamiSupport(
             (value and 0xFF).toByte(),
             ((value shr 8) and 0xFF).toByte()
         )
-    }
-
-    override fun handle2021Payload(type: Short, payload: ByteArray) {
-
     }
 
     companion object {

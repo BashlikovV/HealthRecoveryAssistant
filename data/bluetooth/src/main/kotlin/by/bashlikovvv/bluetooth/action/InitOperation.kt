@@ -3,6 +3,7 @@ package by.bashlikovvv.bluetooth.action
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.AbstractBTLEOperation
 import by.bashlikovvv.bluetooth.model.GBDevice
@@ -38,6 +39,7 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
         this.authFlags = authFlags
         this.cryptFlags = cryptFlags
         this.authKey = authKey
+        builder.setCallback(this)
     }
 
     override fun doPerform() {
@@ -53,10 +55,10 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
     }
 
     override fun onCharacteristicChanged(
-        gatt: BluetoothGatt?,
-        characteristic: BluetoothGattCharacteristic?
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic
     ): Boolean {
-        val characteristicUUID = characteristic?.uuid
+        val characteristicUUID = characteristic.uuid
         if (UUID_CHARACTERISTIC_AUTH != characteristicUUID) {
             return super.onCharacteristicChanged(gatt, characteristic)
         }
@@ -117,7 +119,7 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
             if (authKey.length == 34 && authKey.startsWith("0x")) {
                 srcBytes = hexStringToByteArray(authKey.substring(2))
             }
-            System.arraycopy(srcBytes, 0, authKeyBytes, 9, srcBytes.size.coerceAtMost(16))
+            System.arraycopy(srcBytes, 0, authKeyBytes, 0, srcBytes.size.coerceAtMost(16))
         }
 
         return authKeyBytes
@@ -146,6 +148,54 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
         eCipher.init(Cipher.ENCRYPT_MODE, newKey)
         return eCipher.doFinal(mValue)
     }
+
+    override fun onConnectionStateChange(
+        gatt: BluetoothGatt,
+        status: Int,
+        newState: Int
+    ) {
+        super.onConnectionStateChange(gatt, status, newState)
+    }
+
+    override fun onServicesDiscovered(gatt: BluetoothGatt) {
+        super.onServicesDiscovered(gatt)
+    }
+
+    override fun onCharacteristicRead(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int
+    ): Boolean = super.onCharacteristicRead(gatt, characteristic, status)
+
+    override fun onCharacteristicWrite(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int
+    ): Boolean = super.onCharacteristicWrite(gatt, characteristic, status)
+
+    override fun onDescriptorRead(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor,
+        status: Int
+    ): Boolean = super.onDescriptorRead(gatt, descriptor, status)
+
+    override fun onDescriptorWrite(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor,
+        status: Int
+    ): Boolean = super.onDescriptorWrite(gatt, descriptor, status)
+
+    override fun onReadRemoteRssi(
+        gatt: BluetoothGatt,
+        rssi: Int,
+        status: Int
+    ) = super.onReadRemoteRssi(gatt, rssi, status)
+
+    override fun onMtuChanged(
+        gatt: BluetoothGatt,
+        mtu: Int,
+        status: Int
+    ) = super.onMtuChanged(gatt, mtu, status)
 
     companion object {
         /**

@@ -78,6 +78,7 @@ val dataModule = module {
     single {
         BluetoothRepository(
             queueEntitiesProvider = get(),
+            appDispatchers = get(),
         )
     }
 }

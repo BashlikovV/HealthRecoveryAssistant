@@ -32,7 +32,7 @@
  */
 
 
-package by.bashlikovvv.bluetooth.util;
+package by.bashlikovv.bluetooth.util;
 
 public class ECDH_B163 {
 

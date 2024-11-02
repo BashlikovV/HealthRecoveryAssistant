@@ -26,10 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import by.bashlikovvv.discovery.domain.model.DiscoveryListItems
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun DevicesList(
-    list: List<DiscoveryListItems>,
+    list: ImmutableList<DiscoveryListItems>,
     modifier: Modifier = Modifier,
     onDeviceClicked: (String) -> Unit,
 ) {

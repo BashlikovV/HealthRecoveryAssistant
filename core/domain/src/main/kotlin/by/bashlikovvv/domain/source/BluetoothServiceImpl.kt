@@ -30,8 +30,12 @@ class BluetoothServiceImpl(
                 android.Manifest.permission.BLUETOOTH_SCAN
             ) == PackageManager.PERMISSION_DENIED
         ) return BaseResult.Failure(SecurityException())
-        getBluetoothAdapter()?.startDiscovery()
-            ?: return BaseResult.Failure(NullPointerException())
+        try {
+            getBluetoothAdapter()?.startDiscovery()
+                ?: return BaseResult.Failure(NullPointerException())
+        } catch (e: SecurityException) {
+            BaseResult.Failure(e)
+        }
 
         return BaseResult.Success(Unit)
     }
@@ -42,14 +46,22 @@ class BluetoothServiceImpl(
                 android.Manifest.permission.BLUETOOTH_SCAN
             ) == PackageManager.PERMISSION_DENIED
         ) return BaseResult.Failure(SecurityException())
-        getBluetoothAdapter()?.cancelDiscovery() ?: return BaseResult.Failure(NullPointerException())
+        try {
+            getBluetoothAdapter()?.cancelDiscovery() ?: return BaseResult.Failure(NullPointerException())
+        } catch (e: SecurityException) {
+            return BaseResult.Failure(e)
+        }
 
         return BaseResult.Success(Unit)
     }
 
     @SuppressLint("MissingPermission")
     override fun getBoundDevices(): List<BluetoothDevice> {
-        return getBluetoothAdapter()?.bondedDevices?.toList() ?: emptyList()
+        return try {
+            getBluetoothAdapter()?.bondedDevices?.toList() ?: emptyList()
+        } catch (_: SecurityException) {
+            emptyList()
+        }
     }
 
     override fun addBluetoothDevice(device: BluetoothDevice) {
@@ -61,8 +73,12 @@ class BluetoothServiceImpl(
     }
 
     @SuppressLint("MissingPermission")
-    override fun bondDevice(address: String) {
-        getBluetoothDeviceByAddress(address)?.createBond()
+    override fun bondDevice(address: String): BaseResult<Boolean> {
+        return try {
+            BaseResult.Success(getBluetoothDeviceByAddress(address)?.createBond() == true)
+        } catch (e: SecurityException) {
+            BaseResult.Failure(e)
+        }
     }
 
     override fun getDevices(): List<BluetoothDevice> {

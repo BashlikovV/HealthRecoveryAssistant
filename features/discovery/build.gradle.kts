@@ -12,4 +12,6 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.util)
     implementation(projects.data.common)
+
+    implementation(libs.kotlinx.collections.immutable)
 }

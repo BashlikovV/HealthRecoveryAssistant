@@ -1,7 +1,5 @@
 package by.bashlikovvv.discovery.presentation.ui
 
-import android.Manifest
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -9,11 +7,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -38,8 +34,8 @@ import by.bashlikovvv.ui.composable.ScreenContent
 import by.bashlikovvv.ui.dialog.CommonAlertDialog
 import by.bashlikovvv.ui.res.AppRes
 import by.bashlikovvv.ui.theme.HealthRecoveryAssistantTheme
-import by.bashlikovvv.util.isPermissionGranted
-import by.bashlikovvv.util.requestPermissionsCompat
+import kotlinx.collections.immutable.persistentListOf
+import java.lang.IllegalArgumentException
 
 @Composable
 fun DiscoveryContent(
@@ -55,6 +51,9 @@ fun DiscoveryContent(
         val requestMultiplePermissionsLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions()
         ) { map ->
+            map.forEach { (permission, granted) ->
+                dispatchIntent(DiscoveryStore.Intent.OnPermissionResult(permission, granted))
+            }
             if (map.containsValue(false)) {
                 dialogTitle = "Permissions not granted"
                 component.alertDialogComponent.showDialog()
@@ -68,15 +67,24 @@ fun DiscoveryContent(
             }
         }
         DisposableEffect(Unit) {
-            registerBluetoothReceiver(context, component.bluetoothReceiver)
-            registerBondReceiver(context, component.bondingReceiver)
-            requestPermissions(context as Activity, requestMultiplePermissionsLauncher)
             onDispose {
                 context.unregisterReceiverWithCheck(component.bluetoothReceiver)
                 context.unregisterReceiverWithCheck(component.bondingReceiver)
             }
         }
-        LabelProcessionBlock(label, startActivityResultLauncher)
+        LabelProcessionBlock(
+            label = label,
+            startActivityResultLauncher = startActivityResultLauncher,
+            requestPermission = { requestMultiplePermissionsLauncher.launch(arrayOf(it)) },
+            cancelDiscovery = {
+                context.unregisterReceiverWithCheck(component.bluetoothReceiver)
+                context.unregisterReceiverWithCheck(component.bondingReceiver)
+            },
+            startDiscovery = {
+                registerBluetoothReceiver(context, component.bluetoothReceiver)
+                registerBondReceiver(context, component.bondingReceiver)
+            }
+        )
         DiscoveryScreenContent(
             state = state,
             modifier = modifier,
@@ -99,15 +107,20 @@ fun DiscoveryContent(
 @Composable
 private fun LabelProcessionBlock(
     label: Label?,
-    startActivityResultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+    startActivityResultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    requestPermission: (String) -> Unit,
+    startDiscovery: () -> Unit,
+    cancelDiscovery: () -> Unit,
 ) {
     LaunchedEffect(label) {
         when (label) {
             Label.TurnOnBluetooth -> startActivityResultLauncher.launch(
                 Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             )
-
-            null -> Unit
+            is Label.RequestPermission -> requestPermission(label.permission)
+            is Label.CancelDiscovery -> cancelDiscovery()
+            is Label.StartDiscovery -> startDiscovery()
+            else -> Unit
         }
     }
 }
@@ -128,7 +141,7 @@ private fun registerBondReceiver(
 private fun Context.unregisterReceiverWithCheck(receiver: BroadcastReceiver) {
     try {
         unregisterReceiver(receiver)
-    } catch (_: IllegalStateException) {
+    } catch (_: IllegalArgumentException) {
     }
 }
 
@@ -151,54 +164,13 @@ private fun registerBluetoothReceiver(
     )
 }
 
-private fun requestPermissions(
-    activity: Activity,
-    requestMultiplePermissionsLauncher: ActivityResultLauncher<Array<String>>,
-) {
-    val wantedPermissions = mutableListOf<String>()
-    if (!activity.isPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-        wantedPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
-    }
-    if (!activity.isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
-        wantedPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        if (!activity.isPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-            wantedPermissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
-    }
-    if (wantedPermissions.isNotEmpty()) {
-        wantedPermissions.forEach {
-            activity.requestPermissionsCompat(arrayOf(it))
-        }
-        wantedPermissions.clear()
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH)) {
-            wantedPermissions.add(Manifest.permission.BLUETOOTH)
-        }
-        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH_ADMIN)) {
-            wantedPermissions.add(Manifest.permission.BLUETOOTH_ADMIN)
-        }
-        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH_SCAN)) {
-            wantedPermissions.add(Manifest.permission.BLUETOOTH_SCAN)
-        }
-        if (!activity.isPermissionGranted(Manifest.permission.BLUETOOTH_CONNECT)) {
-            wantedPermissions.add(Manifest.permission.BLUETOOTH_CONNECT)
-        }
-    }
-    if (wantedPermissions.isNotEmpty()) {
-        requestMultiplePermissionsLauncher.launch(wantedPermissions.toTypedArray())
-    }
-}
-
 @[Composable Preview]
 private fun DiscoveryScreenContentPreview() {
     HealthRecoveryAssistantTheme {
         DiscoveryScreenContent(
             state = State(
                 isScanning = true,
-                devices = listOf(
+                devices = persistentListOf(
                     DiscoveryListItems.Device(
                         id = 1,
                         name = "Name",

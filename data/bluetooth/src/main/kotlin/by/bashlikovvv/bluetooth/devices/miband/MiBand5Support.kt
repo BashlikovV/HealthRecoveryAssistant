@@ -1,23 +1,34 @@
 package by.bashlikovvv.bluetooth.devices.miband
 
+import android.util.Log
 import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
 import by.bashlikovvv.bluetooth.model.Reminder
 import by.bashlikovvv.bluetooth.model.Reminder.Builder.Companion.MAX_REMINDER_MESSAGE_LENGTH
-import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.UUID
 
 class MiBand5Support(
+    key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
-) : HuamiSupport(device, provider) {
+) : HuamiSupport(key ,device, provider) {
+    override fun connect(): Boolean {
+        repeat(5) {
+            if (super.connect()) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     override fun onFindDevice(start: Boolean) {
         mQueue?.let { queueNotNull ->
             val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_ALERT_LEVEL)
-            val tb = TransactionBuilder("find device")
+            val tb = performInitialized("find device")
             tb.write(characteristics, if (start) byteArrayOf(3) else byteArrayOf(0))
             tb.queue(queueNotNull)
         }
@@ -45,10 +56,14 @@ class MiBand5Support(
             .build()
         mQueue?.let { queueNotNull ->
             val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
-            val tb = TransactionBuilder("set reminder")
+            val tb = performInitialized("set reminder")
             tb.writeToChunkedOld(characteristics, 2, reminderRepresentation)
             tb.queue(queueNotNull)
         }
+    }
+
+    override fun handle2021Payload(type: Short, payload: ByteArray) {
+        Log.i("MYTAG", "type: $type, payload: $payload")
     }
 
     companion object {

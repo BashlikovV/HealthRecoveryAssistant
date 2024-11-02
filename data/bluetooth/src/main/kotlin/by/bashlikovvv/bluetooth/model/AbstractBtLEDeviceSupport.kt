@@ -2,6 +2,7 @@ package by.bashlikovvv.bluetooth.model
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import by.bashlikovvv.bluetooth.action.CheckInitializedAction
 import by.bashlikovvv.bluetooth.service.BtLEQueue
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
@@ -30,6 +31,7 @@ abstract class AbstractBtLEDeviceSupport(
             mQueue = BtLEQueue(
                 device = device,
                 queueEntitiesProvider = queueEntitiesProvider,
+                callback = this,
             )
         }
 
@@ -42,14 +44,14 @@ abstract class AbstractBtLEDeviceSupport(
         }
     }
 
-    protected open fun initializeDevice(builder: TransactionBuilder): TransactionBuilder = builder
+    override fun initializeDevice(builder: TransactionBuilder): TransactionBuilder = builder
 
     override fun createTransactionBuilder(taskName: String): TransactionBuilder {
         return TransactionBuilder(taskName)
     }
 
     override fun performInitialized(taskName: String): TransactionBuilder {
-        if (isInitialized) {
+        if (!isInitialized) {
             mQueue?.let { queueNotNull ->
                 val builder = createTransactionBuilder("Initialize device")
                 builder.add(CheckInitializedAction(device))
@@ -72,7 +74,31 @@ abstract class AbstractBtLEDeviceSupport(
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic
-    ): Boolean { return false }
+    ): Boolean = false
+
+    override fun onDescriptorRead(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor,
+        status: Int,
+    ): Boolean = false
+
+    override fun onDescriptorWrite(
+        gatt: BluetoothGatt,
+        descriptor: BluetoothGattDescriptor,
+        status: Int,
+    ): Boolean = false
+
+    override fun onReadRemoteRssi(
+        gatt: BluetoothGatt,
+        rssi: Int,
+        status: Int,
+    ) {}
+
+    override fun onMtuChanged(
+        gatt: BluetoothGatt,
+        mtu: Int,
+        status: Int,
+    ) {}
 
     override fun onServicesDiscovered(gatt: BluetoothGatt) {
         val characteristics = gatt.services?.flatMap { service ->
@@ -82,7 +108,23 @@ abstract class AbstractBtLEDeviceSupport(
             .groupBy { it.uuid }
             .ifEmpty { null }
             ?.let { this@AbstractBtLEDeviceSupport.availableCharacteristics = it }
+        mQueue?.let { queueNotNull ->
+            val builder = createTransactionBuilder("Initializing device")
+            initializeDevice(builder).queue(queueNotNull)
+        }
     }
+
+    override fun onCharacteristicRead(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int,
+    ): Boolean = false
+
+    override fun onCharacteristicWrite(
+        gatt: BluetoothGatt,
+        characteristic: BluetoothGattCharacteristic,
+        status: Int,
+    ): Boolean = false
 
     override fun performImmediately(builder: TransactionBuilder) {
         mQueue?.insert(builder.transaction)
