@@ -43,6 +43,7 @@ class MiBand5Support(
     }
 
 //    test(HuamiNotificationType.FIND_BAND, true, (1).toShort(), intArrayOf(30, 35, 30, 35, 30, 35, 30, 800))
+    @Suppress("UNUSED")
     private fun test(
         notificationType: HuamiNotificationType,
         test: Boolean,
@@ -74,6 +75,7 @@ class MiBand5Support(
             val characteristic = getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
             val tb = performInitialized("set vibration profile")
             tb.writeToChunkedOld(characteristic, 2, buf.array())
+            tb.queue(queueNotNull)
         }
 
         return buf.array()

@@ -3,7 +3,6 @@ package by.bashlikovvv.home.presentation.ui.store
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.activity.result.ActivityResult
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.common.repository.HARFilesRepository
