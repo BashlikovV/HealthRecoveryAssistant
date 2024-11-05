@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 
 @[Parcelize Serializable]
 data class VibrationDescriptor(
-    val actions: List<VibrationAction>
+    val onOffSequence: IntArray,
+    val repeat: Short,
+    val alertLevel: Int,
 ) : Parcelable

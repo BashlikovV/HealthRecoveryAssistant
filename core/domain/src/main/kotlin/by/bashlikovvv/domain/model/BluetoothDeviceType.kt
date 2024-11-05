@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @[Parcelize Serializable]
-data class VibrationAction(
-    val duration: Long,
-    val amplitude: UByte,
-) : Parcelable
+sealed class BluetoothDeviceType(val name: String): Parcelable {
+    @[Parcelize Serializable]
+    data object MiBand5 : BluetoothDeviceType("MI_BAND_5")
+}

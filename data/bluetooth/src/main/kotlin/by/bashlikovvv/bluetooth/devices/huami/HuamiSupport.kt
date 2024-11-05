@@ -2,6 +2,7 @@ package by.bashlikovvv.bluetooth.devices.huami
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import by.bashlikovvv.bluetooth.action.InitOperation
 import by.bashlikovvv.bluetooth.action.InitOperation2021
 import by.bashlikovvv.bluetooth.action.SetDeviceStateAction
 import by.bashlikovvv.bluetooth.model.AbstractBtLEDeviceSupport
@@ -22,7 +23,7 @@ abstract class HuamiSupport(
 ) : AbstractBtLEDeviceSupport(device, provider), Huami2021Handler {
     protected open val authFlags: Byte = AUTH_BYTE
 
-    open val cryptFlags: Byte = CRYPT_FLAGS
+    private val cryptFlags: Byte = getCryptFlags()
 
     private var needsAuth: Boolean = true
 
@@ -34,31 +35,47 @@ abstract class HuamiSupport(
 
     private var characteristicChunked2021Write: BluetoothGattCharacteristic? = null
 
+    private var force2021protocol: Boolean = false
+
     override fun initializeDevice(builder: TransactionBuilder): TransactionBuilder {
         try {
             val authenticate = needsAuth && (cryptFlags == CRYPT_FLAGS)
+            needsAuth = false
             characteristicChunked2021Read =
                 getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER_2021_READ)
             if (characteristicChunked2021Read != null && huami2021ChunkedDecoder == null) {
-                huami2021ChunkedDecoder = Huami2021ChunkedDecoder(true, this)
+                huami2021ChunkedDecoder = Huami2021ChunkedDecoder(force2021protocol, this)
             }
             characteristicChunked2021Write =
                 getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER_2021_WRITE)
             if (characteristicChunked2021Write != null && huami2021ChunkedEncoder == null) {
                 huami2021ChunkedEncoder = Huami2021ChunkedEncoder(
-                    characteristicChunked2021Write!!, true, getMtu()
+                    characteristicChunked2021Write!!, force2021protocol, getMtu()
                 )
             }
-            InitOperation2021(
-                needsAuth = authenticate,
-                authFlags = authFlags,
-                cryptFlags = cryptFlags,
-                support = this,
-                builder = builder,
-                authKey = key,
-                huami2021ChunkedEncoder = huami2021ChunkedEncoder,
-                huami2021ChunkedDecoder = huami2021ChunkedDecoder,
-            ).perform()
+            if (force2021protocol) {
+                if (characteristicChunked2021Write != null && characteristicChunked2021Read != null) {
+                    InitOperation2021(
+                        needsAuth = authenticate,
+                        authFlags = authFlags,
+                        cryptFlags = cryptFlags,
+                        support = this,
+                        builder = builder,
+                        authKey = key,
+                        huami2021ChunkedEncoder = huami2021ChunkedEncoder,
+                        huami2021ChunkedDecoder = huami2021ChunkedDecoder,
+                    ).perform()
+                }
+            } else {
+                InitOperation(
+                    needsAuth = authenticate,
+                    authFlags = authFlags,
+                    cryptFlags = cryptFlags,
+                    support = this,
+                    builder = builder,
+                    authKey = key,
+                ).perform()
+            }
             builder.add(SetDeviceStateAction(device, GBDevice.State.WAITING_FOR_RECONNECT))
         } catch (_: IOException) {
         }
@@ -74,13 +91,18 @@ abstract class HuamiSupport(
         return super.onCharacteristicRead(gatt, characteristic, status)
     }
 
-
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic
     ): Boolean {
-        return super.onCharacteristicChanged(gatt, characteristic)
+        return if (characteristic.uuid == UUID_CHARACTERISTIC_AUTH) {
+            true
+        } else {
+            super.onCharacteristicChanged(gatt, characteristic)
+        }
     }
+
+    protected open fun getCryptFlags(): Byte = CRYPT_FLAGS
 
     fun enableNotifications(
         builder: TransactionBuilder,
@@ -126,6 +148,33 @@ abstract class HuamiSupport(
             builder.write(characteristicChunked2021Read, byteArrayOf(0x04, 0x00, handle ?: 0, 0x01, count ?: 0))
         } catch (_: Exception) {
         }
+    }
+
+    protected fun truncateVibrationsOnOff(
+        repeat: Short,
+        onOffSequence: IntArray,
+        limitMillis: Int,
+    ): List<Short> {
+        var totalLengthMs = 0
+
+        // The on-off sequence, until the max total length is reached
+        val onOff = mutableListOf<Short>()
+
+        for (c in 0 until repeat) {
+            for (i in onOffSequence.indices step 2) {
+                val on = onOffSequence[i].toShort()
+                val off = onOffSequence[i + 1].toShort()
+
+                if (totalLengthMs + on + off > limitMillis) break
+
+                onOff.add(on)
+                onOff.add(off)
+                totalLengthMs += on + off
+            }
+        }
+
+        return onOff
+
     }
 
     private fun getTimeBytes(calendar: Calendar, precision: TimeUnit): ByteArray {

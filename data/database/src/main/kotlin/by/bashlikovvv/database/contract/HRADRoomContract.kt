@@ -16,4 +16,12 @@ object HRADRoomContract {
         const val COLUMN_VIBRATION_EVENTS = "wearable_tasks_vibration_events"
         const val COLUMN_NOTIFICATION_TEXT = "wearable_tasks_notification_text"
     }
+
+    object ConnectedDevices {
+        const val TABLE_NAME = "connected_devices"
+        const val COLUMN_ID = "connected_devices_id"
+        const val COLUMN_DEVICE_NAME = "connected_devices_device_name"
+        const val COLUMN_DEVICE_ADDRESS = "connected_devices_device_address"
+        const val COLUMN_DEVICE_TYPE = "connected_devices_device_type"
+    }
 }

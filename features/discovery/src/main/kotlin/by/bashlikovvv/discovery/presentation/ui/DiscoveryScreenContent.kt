@@ -20,7 +20,6 @@ internal fun DiscoveryScreenContent(
     modifier: Modifier = Modifier,
     onDiscoveryClicked: () -> Unit,
     onDeviceClicked: (String) -> Unit,
-    onVibrate: () -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -37,13 +36,12 @@ internal fun DiscoveryScreenContent(
                     AppRes.strings.startDiscoveringNewDevices
             )
         }
-        Button(onClick = onVibrate) { Text("vibrate") }
-        if (state.devices.isNotEmpty()) {
+        if (state.devices.isNotEmpty() || state.isScanning) {
             DevicesList(
                 list = if (state.isScanning) {
                     mutableListOf<DiscoveryListItems>().apply {
                         addAll(state.devices)
-                        add(DiscoveryListItems.Progress(state.devices.maxOf { it.id } + 1))
+                        add(DiscoveryListItems.Progress((state.devices.maxOfOrNull { it.id } ?: 0) + 1))
                     }.toPersistentList()
                 } else {
                     state.devices

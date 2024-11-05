@@ -54,14 +54,18 @@ class WearableEventsWorker(
 
     private suspend fun dispatchEvent(wearableEvent: WearableEvent) {
         with(wearableEvent) {
-            vibrationDescriptor.actions.forEach { action ->
-                wearableRemoteDataSource.vibrate(
-                    duration = action.duration,
-                    amplitude = action.amplitude,
-                )
-                delay(action.duration + 500)
+            repeat(vibrationDescriptor.repeat.toInt()) {
+                for (i in 0..<vibrationDescriptor.onOffSequence.size step 2) {
+                    val vibrationDuration = vibrationDescriptor.onOffSequence[i]
+                    val delayDuration = vibrationDescriptor.onOffSequence[i + 1]
+                    wearableRemoteDataSource.vibrate(
+                        duration = vibrationDuration.toLong(),
+                        amplitude = 254U
+                    )
+                    delay((vibrationDuration + delayDuration).toLong())
+                }
             }
-            notificationText?.let { notificationTextNotNull ->
+            notificationText.let { notificationTextNotNull ->
                 wearableRemoteDataSource.showNotification(notificationTextNotNull)
             }
         }

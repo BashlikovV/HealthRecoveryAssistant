@@ -1,4 +1,4 @@
-package by.bashlikovvv.common.mapper
+package by.bashlikovvv.database.mapper
 
 import by.bashlikovvv.database.model.WearableEventEntity
 import by.bashlikovvv.domain.base.Mapper

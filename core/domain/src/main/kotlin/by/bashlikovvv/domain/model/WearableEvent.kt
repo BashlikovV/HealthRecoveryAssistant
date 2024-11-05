@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 @[Parcelize Serializable]
 data class WearableEvent(
     val vibrationDescriptor: VibrationDescriptor,
-    val notificationText: String? = null,
+    val notificationText: String,
     val scheduledTime: Long,
 ) : Parcelable

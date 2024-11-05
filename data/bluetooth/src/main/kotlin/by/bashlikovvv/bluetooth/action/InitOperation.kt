@@ -65,9 +65,6 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
 
         try {
             val value = characteristic.value
-            if (value.first() == AUTH_RESPONSE) {
-                return super.onCharacteristicChanged(gatt, characteristic)
-            }
 
             if (value[1] == AUTH_SEND_KEY && value[2] == AUTH_SUCCESS) {
                 val builder = createTransactionBuilder("Sending the secret key to the device")
@@ -92,6 +89,8 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
                 } else if (value[2] == AUTH_FAIL) {
                     device.setState(GBDevice.State.NOT_CONNECTED)
                 }
+            } else if (value.first() == AUTH_RESPONSE) {
+                return super.onCharacteristicChanged(gatt, characteristic)
             } else {
                 return super.onCharacteristicChanged(gatt, characteristic)
             }

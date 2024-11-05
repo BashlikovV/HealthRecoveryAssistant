@@ -9,6 +9,8 @@ interface DeviceCoordinator {
      */
     val connectionType: ConnectionType
 
+    val orderPriority: Int
+
     /**
      * Returns false is the Device is not connectable,
      * only scannable, like beacons

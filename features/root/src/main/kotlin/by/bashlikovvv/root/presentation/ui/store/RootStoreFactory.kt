@@ -9,13 +9,15 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 class RootStoreFactory(storeFactory: StoreFactory) : BaseStoreFactory<RootStore>(storeFactory) {
-    override fun create(): RootStore =
-        object : RootStore, Store<Intent, State, Label> by storeFactory.create(
+    override fun create(): RootStore = RootStoreImpl()
+
+    private inner class RootStoreImpl :
+        RootStore, Store<Intent, State, Label> by storeFactory.create(
             name = STORE_NAME,
             initialState = State(),
             executorFactory = ::RootStoreExecutor,
             reducer = reducerImpl,
-        ) {}
+        )
 
     sealed class Msg {
         data class Error(val th: Throwable) : Msg()

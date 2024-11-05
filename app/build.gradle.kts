@@ -16,6 +16,9 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/LICENSE-junit.txt"
+            excludes += "/junit/runner/logo.gif"
+            excludes += "/junit/runner/smalllogo.gif"
         }
     }
 }
