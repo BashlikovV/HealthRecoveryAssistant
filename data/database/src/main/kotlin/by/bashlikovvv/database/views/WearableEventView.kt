@@ -21,5 +21,5 @@ data class WearableEventView(
     @ColumnInfo(name = WearableTasksTable.COLUMN_VIBRATION_EVENTS)
     val vibrationEventsString: String,
     @ColumnInfo(name = WearableTasksTable.COLUMN_NOTIFICATION_TEXT)
-    val notificationText: String?,
+    val notificationText: String,
 )

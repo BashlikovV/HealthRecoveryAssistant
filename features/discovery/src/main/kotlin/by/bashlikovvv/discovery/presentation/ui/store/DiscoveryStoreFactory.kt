@@ -30,15 +30,21 @@ class DiscoveryStoreFactory(
             }
         }
 
-    override fun create(): DiscoveryStore =
-        object : DiscoveryStore, Store<Intent, State, Label> by storeFactory.create(
+    override fun create(): DiscoveryStore = DiscoveryStoreImpl()
+
+    private inner class DiscoveryStoreImpl :
+        DiscoveryStore, Store<Intent, State, Label> by storeFactory.create(
             name = STORE_NAME,
             initialState = State(),
-            bootstrapper = SimpleBootstrapper(Action.Initialize(requiredPermissions)),
+            bootstrapper = bootstrapper(),
             autoInit = true,
             executorFactory = ::DiscoveryStoreExecutor,
             reducer = reducerImpl,
-        ) {}
+        )
+
+    private fun bootstrapper(): SimpleBootstrapper<Action.Initialize> {
+        return SimpleBootstrapper(Action.Initialize(requiredPermissions))
+    }
 
     private val reducerImpl = Reducer<State, Msg> { msg ->
         when(msg) {

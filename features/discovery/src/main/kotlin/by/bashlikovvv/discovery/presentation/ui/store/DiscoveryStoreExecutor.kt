@@ -13,14 +13,11 @@ import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStore.*
 import by.bashlikovvv.discovery.presentation.ui.store.DiscoveryStoreFactory.*
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.model.BluetoothService
-import by.bashlikovvv.domain.model.ReminderDescription
 import by.bashlikovvv.ui.base.BaseCoroutineExecutor
 import by.bashlikovvv.ui.base.PermissionsController
 import by.bashlikovvv.util.ext.deviceName
 import kotlinx.coroutines.delay
 import org.koin.core.component.inject
-import java.util.Calendar
-import java.util.TimeZone
 
 internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, Msg, Label>() {
     private val bluetoothService: BluetoothService by inject()
@@ -46,20 +43,6 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
             is Intent.StartDiscovery -> startDiscovery()
             is Intent.BondDevice -> onBondIntent(intent.address)
             is Intent.OnBondAction -> onBondAction(intent.action)
-            is Intent.Vibrate -> {
-                launchIO {
-                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                    calendar.add(Calendar.MINUTE, 1)
-                    bluetoothRepository.sendCreateReminderCommand(
-                        ReminderDescription(
-                            message = "test msg",
-                            date = calendar.time
-                        )
-                    )
-                    bluetoothRepository.sendFindDeviceCommand(true)
-                }
-            }
-
             is Intent.OnPermissionResult -> onPermissionResult(intent.permission, intent.granted)
         }
     }
@@ -107,9 +90,7 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
         when (bondAction) {
             is BondAction.Bonded -> {
                 dispatch(Msg.DeviceBonded(bondAction.device.address))
-                launchIO {
-                    bluetoothRepository.connect(device = bondAction.device)
-                }
+                launchIO { bluetoothRepository.connectFirstTime(device = bondAction.device) }
             }
 
             is BondAction.Bonding -> dispatch(Msg.DeviceBonding(bondAction.device.address))
@@ -121,11 +102,8 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
     private fun onBondIntent(address: String) {
         cancelDiscovery()
         bluetoothService.bondDevice(address)
-        // TODO: remove
         bluetoothService.getBluetoothDeviceByAddress(address)?.let {
-            launchIO {
-                bluetoothRepository.connect(it)
-            }
+            launchIO { bluetoothRepository.connectFirstTime(it) }
         }
     }
 
@@ -136,8 +114,9 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
             if (!bluetoothService.bluetoothEnabled) publish(Label.TurnOnBluetooth)
             startDiscovery()
             bluetoothService.getBoundDevices().forEach { device ->
-                bluetoothService.addBluetoothDevice(device)
-                addDevice(device, true)
+                if (bluetoothService.addBluetoothDevice(device)) {
+                    addDevice(device, true)
+                }
             }
         } else {
             cancelDiscovery()
@@ -181,15 +160,17 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
         uuids: Array<ParcelUuid>?,
     ) {
         device?.let { deviceNotNull ->
-            bluetoothService.addBluetoothDevice(deviceNotNull)
-            addDevice(deviceNotNull)
+            if (bluetoothService.addBluetoothDevice(deviceNotNull, rssi, uuids)) {
+                addDevice(deviceNotNull)
+            }
         }
     }
 
     private fun handleDeviceBonded(device: BluetoothDevice?) {
         device?.let { deviceNotNull ->
-            bluetoothService.addBluetoothDevice(deviceNotNull)
-            addDevice(deviceNotNull)
+            if (bluetoothService.addBluetoothDevice(deviceNotNull)) {
+                addDevice(deviceNotNull)
+            }
         }
     }
 

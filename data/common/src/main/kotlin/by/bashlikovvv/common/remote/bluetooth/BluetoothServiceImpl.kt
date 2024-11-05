@@ -1,5 +1,6 @@
-package by.bashlikovvv.domain.source
+package by.bashlikovvv.common.remote.bluetooth
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -7,17 +8,24 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.ParcelUuid
+import by.bashlikovvv.bluetooth.model.DeviceType
+import by.bashlikovvv.bluetooth.model.GBDevice
+import by.bashlikovvv.bluetooth.model.GBDeviceCandidate
 import by.bashlikovvv.domain.base.BaseResult
 import by.bashlikovvv.domain.base.SystemServiceProvider
+import by.bashlikovvv.domain.model.BluetoothDeviceType
 import by.bashlikovvv.domain.model.BluetoothService
 
 class BluetoothServiceImpl(
     private val systemServiceProvider: SystemServiceProvider,
     private val checkSelfPermission: (String) -> Int,
 ) : BluetoothService {
-    private var availableDevices = mutableMapOf<String, BluetoothDevice>()
+    private var availableDevices = mutableMapOf<String, GBDevice>()
 
     override val bluetoothEnabled: Boolean = getBluetoothAdapter()?.isEnabled == true
+
+    private var orderedDeviceTypes: Array<DeviceType>? = null
 
     override fun getBluetoothManager(): BluetoothManager? =
         systemServiceProvider.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
@@ -27,7 +35,7 @@ class BluetoothServiceImpl(
     @SuppressLint("MissingPermission")
     override fun startDiscovery(): BaseResult<Unit> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && checkSelfPermission(
-                android.Manifest.permission.BLUETOOTH_SCAN
+                Manifest.permission.BLUETOOTH_SCAN
             ) == PackageManager.PERMISSION_DENIED
         ) return BaseResult.Failure(SecurityException())
         try {
@@ -43,7 +51,7 @@ class BluetoothServiceImpl(
     @SuppressLint("MissingPermission")
     override fun cancelDiscovery(): BaseResult<Unit> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && checkSelfPermission(
-                android.Manifest.permission.BLUETOOTH_SCAN
+                Manifest.permission.BLUETOOTH_SCAN
             ) == PackageManager.PERMISSION_DENIED
         ) return BaseResult.Failure(SecurityException())
         try {
@@ -64,12 +72,33 @@ class BluetoothServiceImpl(
         }
     }
 
-    override fun addBluetoothDevice(device: BluetoothDevice) {
-        availableDevices.put(device.address, device)
+    /**
+     * @return true when device type is supported
+     * */
+    override fun addBluetoothDevice(
+        device: BluetoothDevice,
+        rssi: Short?,
+        uuids: Array<ParcelUuid>?,
+    ): Boolean {
+        val gbDevice = getGbDevice(device, rssi, uuids)
+        return if (gbDevice.deviceType != DeviceType.UNKNOWN) {
+            availableDevices.put(device.address, gbDevice)
+            true
+        } else {
+            false
+        }
     }
 
     override fun getBluetoothDeviceByAddress(address: String): BluetoothDevice? {
-        return availableDevices.getOrElse(address) { null }
+        return availableDevices.getOrElse(address) { null }?.device
+    }
+
+    override fun getDeviceTypeByAddress(address: String): BluetoothDeviceType? {
+        return when(availableDevices.getOrElse(address) { null }?.deviceType) {
+            DeviceType.UNKNOWN -> null
+            DeviceType.MI_BAND_5 -> BluetoothDeviceType.MiBand5
+            null -> null
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -82,6 +111,42 @@ class BluetoothServiceImpl(
     }
 
     override fun getDevices(): List<BluetoothDevice> {
-        return availableDevices.values.toList()
+        return availableDevices.values.map { it.device }
+    }
+
+    private fun getGbDevice(
+        device: BluetoothDevice,
+        rssi: Short?,
+        uuids: Array<ParcelUuid>?,
+    ): GBDevice {
+        return GBDevice(
+            device = device,
+            deviceType = resolveType(device, rssi, uuids),
+        )
+    }
+
+    private fun resolveType(
+        device: BluetoothDevice,
+        rssi: Short?,
+        uuids: Array<ParcelUuid>?,
+    ): DeviceType {
+        for (type in getDeviceTypes()) {
+            if (type.getDeviceCoordinator().supports(GBDeviceCandidate(device, rssi, uuids))) {
+                return type
+            }
+        }
+
+        return DeviceType.UNKNOWN
+    }
+
+    private fun getDeviceTypes(): Array<DeviceType> {
+        synchronized(this) {
+            if (orderedDeviceTypes == null) {
+                orderedDeviceTypes = DeviceType.entries
+                    .sortedBy { it.getDeviceCoordinator().orderPriority }
+                    .toTypedArray()
+            }
+            return orderedDeviceTypes!!
+        }
     }
 }

@@ -2,6 +2,7 @@ package by.bashlikovvv.bluetooth.model
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
+import by.bashlikovvv.bluetooth.devices.huami.HuamiNotificationType
 import by.bashlikovvv.bluetooth.service.BtLEQueue
 import by.bashlikovvv.bluetooth.transactioin.TransactionBuilder
 import java.util.UUID
@@ -33,6 +34,13 @@ abstract class AbstractDeviceSupport : DeviceSupport, GattCallback {
      * @param start true if starting the search, false if stopping
      */
     override fun onFindDevice(start: Boolean) {}
+
+    abstract fun setVibrationProfile(
+        notificationType: HuamiNotificationType,
+        test: Boolean,
+        repeat: Short,
+        onOffSequence: IntArray,
+    )
 
     abstract fun performInitialized(taskName: String): TransactionBuilder
 

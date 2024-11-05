@@ -23,8 +23,6 @@ interface DiscoveryStore : Store<Intent, State, Label> {
 
         data class OnBondAction(val action: BondAction) : Intent()
 
-        data object Vibrate : Intent()
-
         data class OnPermissionResult(
             val permission: String,
             val granted: Boolean,

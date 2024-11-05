@@ -24,4 +24,9 @@ val databaseModule = module {
         val database: HRADatabase = get()
         database.wearableEventsDao
     }
+
+    single {
+        val database: HRADatabase = get()
+        database.connectedDevicesDao
+    }
 }

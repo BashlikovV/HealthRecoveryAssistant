@@ -1,6 +1,6 @@
 [versions]
 agp = "8.6.1"
-kotlin = "2.0.20"
+kotlin = "2.0.10"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -15,10 +15,11 @@ decompose = "3.1.0"
 koin = "3.5.6"
 playServicesWearable = "18.2.0"
 room = "2.6.1"
-ksp = "2.0.20-1.0.24"
+ksp = "2.0.10-1.0.24"
 kotlinx-serialization-json = "1.7.1"
 workRuntimeKtx = "2.10.0"
 kotlinxCollectionsImmutable = "0.3.7"
+kotlin-reflext = "2.0.20"
 
 [libraries]
 # Plugins for composite build
@@ -68,6 +69,9 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 
 # Immutable collection
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
+
+# Kotlin reflect
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflext" }
 
 [plugins]
 healthrecoveryassistant-android-application = { id = "healthrecoveryassistant.android.application", version = "unspecified" }

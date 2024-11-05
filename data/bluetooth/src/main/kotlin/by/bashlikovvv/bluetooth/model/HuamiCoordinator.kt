@@ -6,6 +6,8 @@ import java.util.Collections
 import java.util.UUID
 
 abstract class HuamiCoordinator : AbstractDeviceCoordinator() {
+    override val orderPriority: Int = 1
+
     override fun createBLEScanFilters(): List<ScanFilter> {
         val mi2Service = ParcelUuid(UUID_SERVICE_MI_BAND2_SERVICE)
         val filter = ScanFilter.Builder()

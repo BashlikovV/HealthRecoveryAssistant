@@ -14,7 +14,7 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.navigate
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushToFront
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -69,7 +69,7 @@ class DefaultRootComponent(
             onOutput = { output ->
                 when(output) {
                     is HomeComponent.Output.StartDiscoveringNewDevices ->
-                        navigation.push(Config.Discovery)
+                        navigation.pushToFront(Config.Discovery)
                 }
             }
         )

@@ -6,6 +6,8 @@ import java.util.regex.Pattern
 abstract class AbstractDeviceCoordinator : DeviceCoordinator {
     private var supportedDeviceName: Pattern? = null
 
+    override val orderPriority: Int = 0
+
     override val connectionType: DeviceCoordinator.ConnectionType
         get() = DeviceCoordinator.ConnectionType.BOTH
 

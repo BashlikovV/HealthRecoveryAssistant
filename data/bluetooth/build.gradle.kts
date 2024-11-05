@@ -7,5 +7,5 @@ android {
 }
 
 dependencies {
-    //TODO add needed dependencies
+    implementation(libs.kotlin.reflect)
 }

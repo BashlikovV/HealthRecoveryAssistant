@@ -24,7 +24,7 @@ data class GBDeviceCandidate(
         @SuppressLint("MissingPermission")
         get() {
             return try {
-                device.getBondState() == BluetoothDevice.BOND_BONDED
+                device.bondState == BluetoothDevice.BOND_BONDED
             } catch (_: SecurityException) {
                 false
             }
@@ -42,7 +42,7 @@ data class GBDeviceCandidate(
         } catch (_: InvocationTargetException) {}
         if (deviceName == null || deviceName?.isEmpty() == true) {
             try {
-                deviceName = device.getName()
+                deviceName = device.name
             } catch (_: SecurityException) {}
         }
     }

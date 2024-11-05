@@ -67,6 +67,7 @@ fun DiscoveryContent(
             }
         }
         DisposableEffect(Unit) {
+            registerBondReceiver(context, component.bondingReceiver)
             onDispose {
                 context.unregisterReceiverWithCheck(component.bluetoothReceiver)
                 context.unregisterReceiverWithCheck(component.bondingReceiver)
@@ -78,11 +79,9 @@ fun DiscoveryContent(
             requestPermission = { requestMultiplePermissionsLauncher.launch(arrayOf(it)) },
             cancelDiscovery = {
                 context.unregisterReceiverWithCheck(component.bluetoothReceiver)
-                context.unregisterReceiverWithCheck(component.bondingReceiver)
             },
             startDiscovery = {
                 registerBluetoothReceiver(context, component.bluetoothReceiver)
-                registerBondReceiver(context, component.bondingReceiver)
             }
         )
         DiscoveryScreenContent(
@@ -90,7 +89,6 @@ fun DiscoveryContent(
             modifier = modifier,
             onDiscoveryClicked = { dispatchIntent(DiscoveryStore.Intent.DiscoveryButtonClicked) },
             onDeviceClicked = { address -> dispatchIntent(DiscoveryStore.Intent.BondDevice(address)) },
-            onVibrate = { dispatchIntent(DiscoveryStore.Intent.Vibrate) }
         )
         CommonAlertDialog(
             component = component.alertDialogComponent,
@@ -180,7 +178,6 @@ private fun DiscoveryScreenContentPreview() {
             ),
             onDiscoveryClicked = {},
             onDeviceClicked = {},
-            onVibrate = {}
         )
     }
 }

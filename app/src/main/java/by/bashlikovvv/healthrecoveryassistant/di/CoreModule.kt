@@ -5,7 +5,7 @@ import androidx.core.app.ActivityCompat
 import by.bashlikovvv.domain.base.AppDispatchers
 import by.bashlikovvv.domain.base.SystemServiceProvider
 import by.bashlikovvv.domain.model.BluetoothService
-import by.bashlikovvv.domain.source.BluetoothServiceImpl
+import by.bashlikovvv.common.remote.bluetooth.BluetoothServiceImpl
 import by.bashlikovvv.ui.coroutines.CoroutineManager
 import by.bashlikovvv.ui.coroutines.CoroutineManagerImpl
 import org.koin.android.ext.koin.androidContext

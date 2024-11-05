@@ -1,5 +1,6 @@
 package by.bashlikovvv.healthrecoveryassistant.di
 
+import by.bashlikovvv.common.local.ConnectedDevicesLocalDataSource
 import by.bashlikovvv.common.local.FilesLocalDataSource
 import by.bashlikovvv.common.local.WearableEventsLocalDataSource
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
@@ -57,6 +58,13 @@ val dataModule = module {
     }
 
     single {
+        ConnectedDevicesLocalDataSource(
+            appDispatchers = get(),
+            connectedDevicesDao = get(),
+        )
+    }
+
+    single {
         RootRepository(
             wearableRemoteDataSource = get(),
         )
@@ -77,7 +85,9 @@ val dataModule = module {
 
     single {
         BluetoothRepository(
+            bluetoothService = get(),
             queueEntitiesProvider = get(),
+            connectedDevicesLocalDataSource = get(),
             appDispatchers = get(),
         )
     }
