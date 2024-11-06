@@ -97,7 +97,7 @@ fun DiscoveryContent(
                     Text(AppRes.strings.ok)
                 }
             },
-            title = { Text(dialogTitle) }
+            title = { Text(dialogTitle) },
         )
     }
 }

@@ -3,6 +3,7 @@ package by.bashlikovvv.home.presentation.ui.store
 import android.content.Context
 import android.os.Parcelable
 import androidx.activity.result.ActivityResult
+import by.bashlikovvv.domain.model.BluetoothDevice
 import by.bashlikovvv.domain.model.WearableEvents
 import by.bashlikovvv.home.domain.model.DevicesListItems
 import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
@@ -25,10 +26,6 @@ interface HomeStore : Store<Intent, State, Nothing> {
         ) : Intent()
 
         data object Vibrate : Intent()
-
-        data class SetVibrationProfile(
-            val data: Pair<IntArray, Short>
-        ) : Intent()
     }
 
     @Parcelize
@@ -37,5 +34,6 @@ interface HomeStore : Store<Intent, State, Nothing> {
         val fileContent: WearableEvents? = null,
         val devicesList: ImmutableList<DevicesListItems> = persistentListOf(),
         val isInSelectionMode: Boolean = false,
+        val connectedDevice: BluetoothDevice? = null,
     ) : Parcelable
 }

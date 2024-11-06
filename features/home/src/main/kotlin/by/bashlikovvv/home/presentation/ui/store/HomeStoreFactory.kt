@@ -62,7 +62,8 @@ internal class HomeStoreFactory(
                         device
                     }
                 }
-            }.toPersistentList()
+            }.toPersistentList(),
+            connectedDevice = msg.device.device,
         )
     }
 

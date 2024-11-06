@@ -6,7 +6,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 @Immutable
 data class AppIcons(
-    val icAdd: ImageVector
+    val icAdd: ImageVector,
+    val icSettings: ImageVector,
 )
 
 val LocalAppIcons = staticCompositionLocalOf<AppIcons> {

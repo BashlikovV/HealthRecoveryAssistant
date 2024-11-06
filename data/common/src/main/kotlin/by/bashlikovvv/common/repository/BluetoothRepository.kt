@@ -11,6 +11,7 @@ import by.bashlikovvv.bluetooth.model.Reminder
 import by.bashlikovvv.common.local.ConnectedDevicesLocalDataSource
 import by.bashlikovvv.domain.base.AppDispatchers
 import by.bashlikovvv.domain.model.BluetoothService
+import by.bashlikovvv.domain.model.NotificationTypes
 import by.bashlikovvv.domain.model.ReminderDescription
 import kotlinx.coroutines.withContext
 
@@ -75,12 +76,23 @@ class BluetoothRepository(
     }
 
     suspend fun setVibrationProfile(
+        notificationType: NotificationTypes,
         test: Boolean,
         repeat: Short,
         onOffSequence: IntArray,
     ) = withContext(ioDispatcher) {
-        support?.setVibrationProfile(
-            HuamiNotificationType.FIND_BAND, test, repeat, onOffSequence,
-        )
+        val bluetoothNotificationType = when(notificationType) {
+            is NotificationTypes.Alarm -> HuamiNotificationType.ALARM
+            is NotificationTypes.AppAlerts -> HuamiNotificationType.APP_ALERTS
+            is NotificationTypes.EventReminder -> HuamiNotificationType.EVENT_REMINDER
+            is NotificationTypes.FindBand -> HuamiNotificationType.FIND_BAND
+            is NotificationTypes.GoalNotification -> HuamiNotificationType.GOAL_NOTIFICATION
+            is NotificationTypes.IdleAlerts -> HuamiNotificationType.IDLE_ALERTS
+            is NotificationTypes.IncomingCall -> HuamiNotificationType.INCOMING_CALL
+            is NotificationTypes.IncomingSms -> HuamiNotificationType.INCOMING_SMS
+            is NotificationTypes.Schedule -> HuamiNotificationType.SCHEDULE
+            is NotificationTypes.TodoList -> HuamiNotificationType.TODO_LIST
+        }
+        support?.setVibrationProfile(bluetoothNotificationType, test, repeat, onOffSequence)
     }
 }
