@@ -1,5 +1,6 @@
 package by.bashlikovvv.root.presentation.ui.component
 
+import by.bashlikovvv.devicesettings.presentation.ui.component.DeviceSettingsComponent
 import by.bashlikovvv.discovery.presentation.ui.component.DiscoveryComponent
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.root.presentation.ui.store.RootStore
@@ -17,5 +18,7 @@ interface RootComponent {
         data class Home(val component: HomeComponent) : Child()
 
         data class Discovery(val component: DiscoveryComponent) : Child()
+
+        data class DeviceSettings(val component: DeviceSettingsComponent) : Child()
     }
 }

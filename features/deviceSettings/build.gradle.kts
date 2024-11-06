@@ -1,11 +1,10 @@
 plugins {
     alias(libs.plugins.healthrecoveryassistant.android.library.compose)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
     id("kotlin-parcelize")
 }
 
 android {
-    namespace = "by.bashlikovvv.feature.root"
+    namespace = "by.bashlikovvv.feature.devicesettings"
 }
 
 dependencies {
@@ -13,7 +12,5 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.data.common)
 
-    implementation(projects.features.home)
-    implementation(projects.features.discovery)
-    implementation(projects.features.deviceSettings)
+    implementation(libs.kotlinx.collections.immutable)
 }

@@ -160,7 +160,7 @@ abstract class HuamiSupport(
         // The on-off sequence, until the max total length is reached
         val onOff = mutableListOf<Short>()
 
-        for (c in 0 until repeat) {
+        (0 until repeat).forEach { _ ->
             for (i in onOffSequence.indices step 2) {
                 val on = onOffSequence[i].toShort()
                 val off = onOffSequence[i + 1].toShort()
@@ -199,9 +199,9 @@ abstract class HuamiSupport(
     }
 
     private fun mapTimeZone(calendar: Calendar, timeZoneFlags: Int): Byte {
-        var offsetMillis = calendar.getTimeZone().rawOffset
+        var offsetMillis = calendar.timeZone.rawOffset
         if (timeZoneFlags == TZ_FLAG_INCLUDE_DST_IN_TZ) {
-            offsetMillis = calendar.getTimeZone().getOffset(calendar.getTimeInMillis())
+            offsetMillis = calendar.timeZone.getOffset(calendar.timeInMillis)
         }
         val utcOffsetInQuarterHours = (offsetMillis / (1000 * 60 * 15))
         return utcOffsetInQuarterHours.toByte()

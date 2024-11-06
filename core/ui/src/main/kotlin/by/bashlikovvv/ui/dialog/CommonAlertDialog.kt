@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import by.bashlikovvv.ui.composable.ScreenContent
 import by.bashlikovvv.ui.dialog.component.AlertDialogComponent
@@ -55,6 +56,30 @@ fun CommonAlertDialog(
                 properties = properties,
                 modifier = modifier,
             )
+        }
+    }
+}
+
+@Composable
+fun CommonAlertDialog(
+    component: AlertDialogComponent,
+    content: @Composable AlertDialogScope.() -> Unit,
+) {
+    ScreenContent(
+        contractProvider = component.store,
+        initialState = AlertDialogStore.State(),
+    ) { state, label ->
+        if (state.isVisible) {
+            val scope = object : AlertDialogScope {
+                override fun dismiss() {
+                    dispatchIntent(AlertDialogStore.Intent.HideDialog)
+                }
+            }
+            Dialog(
+                onDismissRequest = { dispatchIntent(AlertDialogStore.Intent.HideDialog) },
+            ) {
+                scope.content()
+            }
         }
     }
 }

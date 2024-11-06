@@ -1,7 +1,10 @@
 package by.bashlikovvv.root.presentation.ui.component
 
+import by.bashlikovvv.devicesettings.presentation.ui.component.DefaultDeviceSettingsComponent
+import by.bashlikovvv.devicesettings.presentation.ui.component.DeviceSettingsComponent
 import by.bashlikovvv.discovery.presentation.ui.component.DefaultDiscoveryComponent
 import by.bashlikovvv.discovery.presentation.ui.component.DiscoveryComponent
+import by.bashlikovvv.domain.model.BluetoothDevice
 import by.bashlikovvv.home.presentation.ui.component.DefaultHomeComponent
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.root.presentation.ui.component.RootComponent.Child
@@ -56,6 +59,7 @@ class DefaultRootComponent(
         when(config) {
             is Config.Home -> Home(homeComponent(childComponentContext, config.harFileUri))
             is Config.Discovery -> Discovery(discoveryComponent(childComponentContext))
+            is Config.DeviceSettings -> DeviceSettings(deviceSettingsComponent(childComponentContext))
         }
 
     private fun homeComponent(
@@ -70,12 +74,21 @@ class DefaultRootComponent(
                 when(output) {
                     is HomeComponent.Output.StartDiscoveringNewDevices ->
                         navigation.pushToFront(Config.Discovery)
+
+                    is HomeComponent.Output.OpenDeviceSettings ->
+                        navigation.pushToFront(Config.DeviceSettings(output.device))
                 }
             }
         )
 
     private fun discoveryComponent(componentContext: ComponentContext): DiscoveryComponent =
         DefaultDiscoveryComponent(
+            componentContext = componentContext,
+            storeFactory = storeFactory,
+        )
+
+    private fun deviceSettingsComponent(componentContext: ComponentContext): DeviceSettingsComponent =
+        DefaultDeviceSettingsComponent(
             componentContext = componentContext,
             storeFactory = storeFactory,
         )
@@ -98,5 +111,8 @@ class DefaultRootComponent(
 
         @Serializable
         data object Discovery : Config()
+
+        @Serializable
+        data class DeviceSettings(val device: BluetoothDevice) : Config()
     }
 }

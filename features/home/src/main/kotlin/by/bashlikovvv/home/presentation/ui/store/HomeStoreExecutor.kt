@@ -31,13 +31,6 @@ internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, 
             is Intent.ScheduleFileData -> onScheduleFileDataIntent(intent.events, intent.context)
             is Intent.DeviceClick -> onDeviceClick(intent.device)
             is Intent.Vibrate -> vibrate()
-            is Intent.SetVibrationProfile -> launchIO {
-                bluetoothRepository.setVibrationProfile(
-                    test = false,
-                    repeat = intent.data.second,
-                    onOffSequence = intent.data.first
-                )
-            }
         }
     }
 
@@ -63,9 +56,7 @@ internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, 
                     Msg.Devices(
                         devices = devices.map { localDevice ->
                             DevicesListItems.Device(
-                                id = localDevice.id.toInt(),
-                                name = localDevice.name,
-                                address = localDevice.address,
+                                device = localDevice,
                                 connected = bluetoothRepository.isConnected(localDevice.address)
                             )
                         }

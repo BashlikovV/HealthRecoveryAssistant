@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import by.bashlikovvv.devicesettings.presentation.ui.DeviceSettingsContent
 import by.bashlikovvv.discovery.presentation.ui.DiscoveryContent
 import by.bashlikovvv.home.presentation.ui.HomeContent
 import by.bashlikovvv.root.presentation.ui.component.RootComponent
@@ -41,6 +42,7 @@ fun RootContent(
                     when(val instance = it.instance) {
                         is RootComponent.Child.Home -> HomeContent(instance.component)
                         is RootComponent.Child.Discovery -> DiscoveryContent(instance.component)
+                        is RootComponent.Child.DeviceSettings -> DeviceSettingsContent(instance.component)
                     }
                 }
             }

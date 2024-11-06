@@ -1,5 +1,6 @@
 package by.bashlikovvv.home.presentation.ui.component
 
+import by.bashlikovvv.domain.model.BluetoothDevice
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent.*
 import by.bashlikovvv.home.presentation.ui.store.HomeStore
 import by.bashlikovvv.home.presentation.ui.store.HomeStoreFactory
@@ -19,4 +20,6 @@ class DefaultHomeComponent(
     }
 
     override fun startDiscoveringNewDevices() = onOutput(Output.StartDiscoveringNewDevices)
+
+    override fun openDeviceSettings(device: BluetoothDevice) = onOutput(Output.OpenDeviceSettings(device))
 }

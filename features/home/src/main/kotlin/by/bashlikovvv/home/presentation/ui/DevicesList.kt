@@ -14,8 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import by.bashlikovvv.home.domain.model.DevicesListItems
+import by.bashlikovvv.ui.theme.HealthRecoveryAssistantTheme
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -73,7 +75,12 @@ private fun ItemDevice(
             .clickable(onClick = onClicked),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("$name : $address")
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "$name : $address",
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -98,5 +105,20 @@ private fun ItemDevice(
                 Text("schedule")
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun ItemDevicePreview() {
+    HealthRecoveryAssistantTheme {
+        ItemDevice(
+            name = "test",
+            address = "00:00:00:00",
+            isConnected = false,
+            onVibrate = {},
+            onClicked = {},
+            onScheduleNotifications = {},
+        )
     }
 }
