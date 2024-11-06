@@ -1,6 +1,5 @@
 package by.bashlikovvv.devicesettings.presentation.ui.store
 
-import android.util.Log
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.devicesettings.domain.model.NotificationType
 import by.bashlikovvv.devicesettings.domain.model.VibrationProfile

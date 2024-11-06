@@ -3,7 +3,6 @@ package by.bashlikovvv.devicesettings.domain.model
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import by.bashlikovvv.domain.model.NotificationTypes
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
