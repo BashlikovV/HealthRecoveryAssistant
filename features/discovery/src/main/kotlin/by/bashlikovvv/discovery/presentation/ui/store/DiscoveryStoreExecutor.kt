@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.os.ParcelUuid
+import android.util.Log
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
 import by.bashlikovvv.discovery.domain.model.BluetoothState
@@ -109,9 +110,12 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
 
     private fun onDiscoveryButtonClicked(state: State) {
         val isScanning = !state.isScanning
-        dispatch(Msg.Discover(isScanning))
         if (isScanning) {
-            if (!bluetoothService.bluetoothEnabled) publish(Label.TurnOnBluetooth)
+            if (!bluetoothService.bluetoothEnabled) {
+                publish(Label.TurnOnBluetooth)
+                return
+            }
+            dispatch(Msg.Discover(true))
             startDiscovery()
             bluetoothService.getBoundDevices().forEach { device ->
                 if (bluetoothService.addBluetoothDevice(device)) {

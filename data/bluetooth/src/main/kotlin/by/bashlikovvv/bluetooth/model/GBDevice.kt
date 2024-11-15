@@ -15,6 +15,9 @@ data class GBDevice(
     val isConnected: Boolean
         get() = state == State.CONNECTED
 
+    val coordinator: DeviceCoordinator
+        get() = deviceType.getDeviceCoordinator()
+
     fun setState(state: State) {
         this.state = state
     }

@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import by.bashlikovvv.domain.model.WearableEvents
 import by.bashlikovvv.home.domain.model.DevicesListItems
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
 import by.bashlikovvv.home.presentation.ui.store.HomeStore
@@ -29,10 +29,18 @@ fun HomeContent(
         contractProvider = component.store,
         initialState = HomeStore.State()
     ) { state, label ->
+        var latestDevice = remember<DevicesListItems.Device?> { null }
+        val context = LocalContext.current
         val startActivityForeResultLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult()
-        ) { dispatchIntent(HomeStore.Intent.OnActivityResult(it)) }
-        val context = LocalContext.current
+        ) {
+            if (latestDevice != null) {
+                dispatchIntent(HomeStore.Intent.ScheduleFileData(it, latestDevice!!, context))
+                latestDevice = null
+            } else {
+                dispatchIntent(HomeStore.Intent.OnActivityResult(it))
+            }
+        }
         HomeScreenContent(
             state = state,
             modifier = modifier,
@@ -40,8 +48,9 @@ fun HomeContent(
             onFABClicked = component::startDiscoveringNewDevices,
             onDeviceClicked = { dispatchIntent(HomeStore.Intent.DeviceClick(it)) },
             onVibrate = { dispatchIntent(HomeStore.Intent.Vibrate) },
-            onScheduleNotifications = {
-                dispatchIntent(HomeStore.Intent.ScheduleFileData(WearableEvents(listOf()), context))
+            onScheduleNotifications = { device ->
+                latestDevice = device
+                startActivityForeResultLauncher.launchFilesPicker()
             },
             onOpenDeviceSettings = { state.connectedDevice?.let { component.openDeviceSettings(it) } }
         )
@@ -56,7 +65,7 @@ private fun HomeScreenContent(
     onFABClicked: () -> Unit,
     onDeviceClicked: (DevicesListItems.Device) -> Unit,
     onVibrate: () -> Unit,
-    onScheduleNotifications: () -> Unit,
+    onScheduleNotifications: (DevicesListItems.Device) -> Unit,
     onOpenDeviceSettings: () -> Unit,
 ) {
     Scaffold(

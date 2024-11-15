@@ -4,14 +4,15 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@[Parcelize Serializable]
+@[Parcelize Serializable SerialName("BluetoothDevice")]
 data class BluetoothDevice(
-    val id: Long,
-    val name: String,
-    val address: String,
-    val type: BluetoothDeviceType,
+    @SerialName("id") val id: Long,
+    @SerialName("name") val name: String,
+    @SerialName("address") val address: String,
+    @SerialName("type") val type: BluetoothDeviceType,
 ) : Parcelable {
     companion object {
         @SuppressLint("MissingPermission")

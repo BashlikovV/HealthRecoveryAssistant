@@ -32,4 +32,10 @@ interface BluetoothService {
     fun bondDevice(address: String): BaseResult<Boolean>
 
     fun getDevices(): List<BluetoothDevice>
+
+    fun getDeviceType(
+        device: BluetoothDevice,
+        rssi: Short?,
+        uuids: Array<ParcelUuid>?,
+    ): BluetoothDeviceType
 }

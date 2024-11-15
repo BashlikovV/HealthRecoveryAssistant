@@ -17,6 +17,11 @@ interface RootStore : Store<Intent, State, Label> {
         data object Destroy : Intent()
 
         data class OnNewIntent(val intent: android.content.Intent) : Intent()
+
+        data class OnPermissionResult(
+            val permission: String,
+            val granted: Boolean,
+        ) : Intent()
     }
 
     @Parcelize
@@ -26,5 +31,9 @@ interface RootStore : Store<Intent, State, Label> {
 
     sealed class Label {
         data class OpenHARFile(val uri: Uri) : Label()
+
+        data class RequestPermission(val permission: String) : Label()
+
+        data object StartForegroundService : Label()
     }
 }

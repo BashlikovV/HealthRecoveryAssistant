@@ -3,6 +3,7 @@ package by.bashlikovvv.root.presentation.ui.component
 import by.bashlikovvv.devicesettings.presentation.ui.component.DeviceSettingsComponent
 import by.bashlikovvv.discovery.presentation.ui.component.DiscoveryComponent
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
+import by.bashlikovvv.common.worker.ForegroundServiceContract
 import by.bashlikovvv.root.presentation.ui.store.RootStore
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
@@ -11,6 +12,8 @@ interface RootComponent {
     val stack: Value<ChildStack<*, Child>>
 
     val store: RootStore
+
+    val foregroundServiceContract: ForegroundServiceContract
 
     fun dispatchIntent(intent: RootStore.Intent)
 

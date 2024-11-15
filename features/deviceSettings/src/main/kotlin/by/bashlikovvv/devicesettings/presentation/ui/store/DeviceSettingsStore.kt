@@ -30,7 +30,7 @@ interface DeviceSettingsStore : Store<Intent, State, Nothing> {
     @Parcelize
     data class State(
         val device: BluetoothDevice? = null,
-        val notificationType: NotificationType = NotificationType.GoalNotification(),
+        val notificationType: NotificationType = NotificationType.GoalNotification,
         val vibrationProfile: VibrationProfile = VibrationProfile.staccato(1),
         val keySettings: SettingsListItems.ItemKeySettings? = SettingsListItems.ItemKeySettings(
             0,

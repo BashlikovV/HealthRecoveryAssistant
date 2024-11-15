@@ -1,7 +1,7 @@
 package by.bashlikovvv.bluetooth.devices.miband
 
+import by.bashlikovvv.bluetooth.model.AbstractDeviceSupport
 import by.bashlikovvv.bluetooth.model.DeviceCoordinator
-import by.bashlikovvv.bluetooth.model.DeviceSupport
 import by.bashlikovvv.bluetooth.model.GBDevice
 import kotlin.reflect.KClass
 
@@ -12,7 +12,7 @@ class MiBand5Coordinator : MiBandCoordinator() {
 
     override fun getReminderSlotCount(device: GBDevice): Int = REMINDER_SLOT_COUNT
 
-    override fun getDeviceSupportClass(): KClass<out DeviceSupport> = MiBand5Support::class
+    override fun getDeviceSupportClass(): KClass<out AbstractDeviceSupport> = MiBand5Support::class
 
     companion object {
         const val ALARM_TITLE_LIMIT = -1

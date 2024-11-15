@@ -50,21 +50,21 @@ class BtLEQueue(
                     val transaction = transactions.take()
                     if (transaction is Transaction) {
                         internalGattCallback.setTransactionGattCallback(transaction.callback)
-                        Log.i("MYTAG", "transaction: $transaction with size: ${transaction.actions.size}")
+//                        Log.i("MYTAG", "transaction: $transaction with size: ${transaction.actions.size}")
                         for (action in transaction.actions) {
-                            Log.i("MYTAG", "action: $action")
+//                            Log.i("MYTAG", "action: $action")
                             waitCharacteristic = action.characteristic
                             waitForActionResultLatch = CountDownLatch(1)
                             if (bluetoothGatt?.let { action.run(it) } == true) {
-                                Log.i("MYTAG", "action success")
+//                                Log.i("MYTAG", "action success")
                                 if (action.expectsResult()) {
-                                    Log.i("MYTAG", "action wait for result")
+//                                    Log.i("MYTAG", "action wait for result")
                                     waitForActionResultLatch?.await()
-                                    Log.i("MYTAG", "action result")
+//                                    Log.i("MYTAG", "action result")
                                     waitForActionResultLatch = null
                                 }
                             } else {
-                                Log.i("MYTAG", "action failure")
+//                                Log.i("MYTAG", "action failure")
                             }
                         }
                     }
@@ -88,13 +88,12 @@ class BtLEQueue(
         val remoteDevice = adapter.getRemoteDevice(device.device.address)
         synchronized(gattMonitor) {
             val gatt = queueEntitiesProvider.connectGatt(remoteDevice, internalGattCallback)
-//            gatt.connect()
             bluetoothGatt = gatt
             Thread.sleep(300)
             gatt.discoverServices()
         }
         
-        return bluetoothGatt != null
+        return bluetoothGatt?.connect() == true
     }
 
     private val internalGattCallback = object : BluetoothGattCallback() {
@@ -155,7 +154,7 @@ class BtLEQueue(
         ) {
             gatt?.let { gattNotNull ->
                 characteristic?.let { characteristicNotNull ->
-                    this.callback.onCharacteristicWrite(gatt, characteristic, status)
+                    this.callback.onCharacteristicWrite(gattNotNull, characteristicNotNull, status)
                 }
             }
             checkWaitingCharacteristic(characteristic)

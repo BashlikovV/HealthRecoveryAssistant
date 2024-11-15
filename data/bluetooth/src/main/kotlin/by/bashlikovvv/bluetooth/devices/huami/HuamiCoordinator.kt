@@ -1,7 +1,9 @@
-package by.bashlikovvv.bluetooth.model
+package by.bashlikovvv.bluetooth.devices.huami
 
 import android.bluetooth.le.ScanFilter
 import android.os.ParcelUuid
+import by.bashlikovvv.bluetooth.model.AbstractDeviceCoordinator
+import by.bashlikovvv.bluetooth.model.GBDevice
 import java.util.Collections
 import java.util.UUID
 
