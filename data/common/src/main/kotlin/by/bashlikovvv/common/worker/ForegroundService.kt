@@ -26,7 +26,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
 import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 class ForegroundService : Service(), KoinComponent {

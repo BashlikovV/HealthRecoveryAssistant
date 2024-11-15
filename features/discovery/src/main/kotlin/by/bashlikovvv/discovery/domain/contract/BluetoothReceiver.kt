@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.ParcelUuid
-import android.util.Log
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
 import by.bashlikovvv.util.getBluetoothDeviceFromIntent
 

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.os.ParcelUuid
-import android.util.Log
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.discovery.domain.model.BluetoothAction
 import by.bashlikovvv.discovery.domain.model.BluetoothState

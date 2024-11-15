@@ -1,6 +1,5 @@
 package by.bashlikovvv.root.presentation.ui.store
 
-import android.Manifest
 import android.content.Context
 import by.bashlikovvv.common.repository.RootRepository
 import by.bashlikovvv.root.presentation.ui.store.RootStore.Intent

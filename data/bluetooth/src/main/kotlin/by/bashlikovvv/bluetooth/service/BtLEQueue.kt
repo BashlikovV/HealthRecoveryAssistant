@@ -1,6 +1,5 @@
 package by.bashlikovvv.bluetooth.service
 
-
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
@@ -8,7 +7,6 @@ import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
-import android.util.Log
 import by.bashlikovvv.bluetooth.model.AbstractTransaction
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.GattCallback
@@ -50,21 +48,14 @@ class BtLEQueue(
                     val transaction = transactions.take()
                     if (transaction is Transaction) {
                         internalGattCallback.setTransactionGattCallback(transaction.callback)
-//                        Log.i("MYTAG", "transaction: $transaction with size: ${transaction.actions.size}")
                         for (action in transaction.actions) {
-//                            Log.i("MYTAG", "action: $action")
                             waitCharacteristic = action.characteristic
                             waitForActionResultLatch = CountDownLatch(1)
                             if (bluetoothGatt?.let { action.run(it) } == true) {
-//                                Log.i("MYTAG", "action success")
                                 if (action.expectsResult()) {
-//                                    Log.i("MYTAG", "action wait for result")
                                     waitForActionResultLatch?.await()
-//                                    Log.i("MYTAG", "action result")
                                     waitForActionResultLatch = null
                                 }
-                            } else {
-//                                Log.i("MYTAG", "action failure")
                             }
                         }
                     }

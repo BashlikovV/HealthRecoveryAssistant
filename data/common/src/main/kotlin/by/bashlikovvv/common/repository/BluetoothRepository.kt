@@ -1,7 +1,6 @@
 package by.bashlikovvv.common.repository
 
 import android.bluetooth.BluetoothDevice
-import android.util.Log
 import by.bashlikovvv.bluetooth.devices.huami.HuamiNotificationType
 import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.AbstractDeviceSupport
