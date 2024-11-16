@@ -17,7 +17,8 @@ interface HomeStore : Store<Intent, State, Nothing> {
         data class OnActivityResult(val activityResult: ActivityResult) : Intent()
 
         data class ScheduleFileData(
-            val events: WearableEvents,
+            val result: ActivityResult,
+            val device: DevicesListItems.Device,
             val context: Context,
         ) : Intent()
 

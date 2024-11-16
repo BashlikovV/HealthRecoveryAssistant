@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class by.bashlikovvv.bluetooth.** { *; }
+-keep class by.bashlikovvv.discovery.** { *; }

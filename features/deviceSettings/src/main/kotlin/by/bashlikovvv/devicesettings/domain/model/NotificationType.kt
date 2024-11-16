@@ -22,68 +22,68 @@ sealed class NotificationType(val id: Int) : NotificationTypeCompose, Parcelable
         }
 
     @Parcelize
-    class AppAlerts : NotificationType(0) {
+    data object AppAlerts : NotificationType(0) {
         override val name: String @Composable get() = "AppAlerts"
     }
 
     @Parcelize
-    class IncomingCall : NotificationType(1) {
+    data object IncomingCall : NotificationType(1) {
         override val name: String @Composable get() = "IncomingCall"
     }
 
     @Parcelize
-    class IncomingSms : NotificationType(2) {
+    data object IncomingSms : NotificationType(2) {
         override val name: String @Composable get() = "IncomingSms"
     }
 
     @Parcelize
-    class GoalNotification : NotificationType(3) {
+    data object GoalNotification : NotificationType(3) {
         override val name: String @Composable get() = "GoalNotification"
     }
 
     @Parcelize
-    class Alarm : NotificationType(4) {
+    data object Alarm : NotificationType(4) {
         override val name: String @Composable get() = "Alarm"
     }
 
     @Parcelize
-    class IdleAlerts : NotificationType(5) {
+    data object IdleAlerts : NotificationType(5) {
         override val name: String @Composable get() = "IdleAlerts"
     }
 
     @Parcelize
-    class EventReminder : NotificationType(6) {
+    data object EventReminder : NotificationType(6) {
         override val name: String @Composable get() = "EventReminder"
     }
 
     @Parcelize
-    class FindBand : NotificationType(7) {
+    data object FindBand : NotificationType(7) {
         override val name: String @Composable get() = "FindBand"
     }
 
     @Parcelize
-    class TodoList : NotificationType(8) {
+    data object TodoList : NotificationType(8) {
         override val name: String @Composable get() = "TodoList"
     }
 
     @Parcelize
-    class Schedule : NotificationType(9) {
+    data object Schedule : NotificationType(9) {
         override val name: String @Composable get() = "Schedule"
     }
 
     companion object {
         val entries: List<NotificationType>
             get() = listOf(
-                AppAlerts(),
-                IncomingCall(),
-                IncomingSms(),
-                GoalNotification(),
-                Alarm(),
-                IdleAlerts(),
-                EventReminder(),
-                FindBand(),
-                TodoList(),
-                Schedule(),
+                AppAlerts,
+                IncomingCall,
+                IncomingSms,
+                GoalNotification,
+                Alarm,
+                IdleAlerts,
+                EventReminder,
+                FindBand,
+                TodoList,
+                Schedule,
             )
     }
 }

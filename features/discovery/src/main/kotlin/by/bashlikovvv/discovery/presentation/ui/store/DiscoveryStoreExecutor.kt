@@ -109,9 +109,12 @@ internal class DiscoveryStoreExecutor : BaseCoroutineExecutor<Intent, Action, St
 
     private fun onDiscoveryButtonClicked(state: State) {
         val isScanning = !state.isScanning
-        dispatch(Msg.Discover(isScanning))
         if (isScanning) {
-            if (!bluetoothService.bluetoothEnabled) publish(Label.TurnOnBluetooth)
+            if (!bluetoothService.bluetoothEnabled) {
+                publish(Label.TurnOnBluetooth)
+                return
+            }
+            dispatch(Msg.Discover(true))
             startDiscovery()
             bluetoothService.getBoundDevices().forEach { device ->
                 if (bluetoothService.addBluetoothDevice(device)) {

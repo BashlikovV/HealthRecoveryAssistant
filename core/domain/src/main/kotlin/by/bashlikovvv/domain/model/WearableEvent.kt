@@ -2,11 +2,12 @@ package by.bashlikovvv.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@[Parcelize Serializable]
+@[Parcelize Serializable SerialName("WearableEvent")]
 data class WearableEvent(
-    val vibrationDescriptor: VibrationDescriptor,
-    val notificationText: String,
-    val scheduledTime: Long,
+    @SerialName("vibrationDescriptor") val vibrationDescriptor: VibrationDescriptor,
+    @SerialName("notificationText") val notificationText: String,
+    @SerialName("scheduledTime") val scheduledTime: Long,
 ) : Parcelable

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothClass
 import android.bluetooth.BluetoothDevice
 import by.bashlikovvv.bluetooth.model.GBDeviceCandidate
-import by.bashlikovvv.bluetooth.model.HuamiCoordinator
+import by.bashlikovvv.bluetooth.devices.huami.HuamiCoordinator
 import java.util.UUID
 
 abstract class MiBandCoordinator : HuamiCoordinator() {

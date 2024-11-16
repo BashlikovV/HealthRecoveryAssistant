@@ -85,7 +85,7 @@ class BluetoothServiceImpl(
             availableDevices.put(device.address, gbDevice)
             true
         } else {
-            false
+            true
         }
     }
 
@@ -114,7 +114,18 @@ class BluetoothServiceImpl(
         return availableDevices.values.map { it.device }
     }
 
-    private fun getGbDevice(
+    override fun getDeviceType(
+        device: BluetoothDevice,
+        rssi: Short?,
+        uuids: Array<ParcelUuid>?,
+    ): BluetoothDeviceType {
+        return when(resolveType(device, rssi, uuids)) {
+            DeviceType.UNKNOWN -> BluetoothDeviceType.Unknown
+            DeviceType.MI_BAND_5 -> BluetoothDeviceType.MiBand5
+        }
+    }
+
+    fun getGbDevice(
         device: BluetoothDevice,
         rssi: Short?,
         uuids: Array<ParcelUuid>?,

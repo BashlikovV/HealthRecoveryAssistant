@@ -7,6 +7,7 @@ import by.bashlikovvv.discovery.presentation.ui.component.DiscoveryComponent
 import by.bashlikovvv.domain.model.BluetoothDevice
 import by.bashlikovvv.home.presentation.ui.component.DefaultHomeComponent
 import by.bashlikovvv.home.presentation.ui.component.HomeComponent
+import by.bashlikovvv.common.worker.ForegroundServiceContract
 import by.bashlikovvv.root.presentation.ui.component.RootComponent.Child
 import by.bashlikovvv.root.presentation.ui.component.RootComponent.Child.*
 import by.bashlikovvv.root.presentation.ui.store.RootStore
@@ -42,6 +43,7 @@ class DefaultRootComponent(
     override val store: RootStore = instanceKeeper.getStore {
         RootStoreFactory(storeFactory).create()
     }
+    override val foregroundServiceContract: ForegroundServiceContract = ForegroundServiceContract()
 
     override fun dispatchIntent(intent: RootStore.Intent) {
         store.accept(intent)
@@ -51,6 +53,7 @@ class DefaultRootComponent(
         observeLabels(store.labels) { label ->
             when(label) {
                 is RootStore.Label.OpenHARFile -> onOpenHARFileLabel(label)
+                else -> Unit
             }
         }
     }

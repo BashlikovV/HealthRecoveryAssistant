@@ -2,14 +2,16 @@ package by.bashlikovvv.common.repository
 
 import android.bluetooth.BluetoothDevice
 import by.bashlikovvv.bluetooth.devices.huami.HuamiNotificationType
-import by.bashlikovvv.bluetooth.devices.miband.MiBand5Support
+import by.bashlikovvv.bluetooth.devices.huami.HuamiSupport
 import by.bashlikovvv.bluetooth.model.AbstractDeviceSupport
 import by.bashlikovvv.bluetooth.model.DeviceType
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.QueueEntitiesProvider
 import by.bashlikovvv.bluetooth.model.Reminder
+import by.bashlikovvv.bluetooth.service.DeviceSupportFactory
 import by.bashlikovvv.common.local.ConnectedDevicesLocalDataSource
 import by.bashlikovvv.domain.base.AppDispatchers
+import by.bashlikovvv.domain.model.BluetoothDeviceType
 import by.bashlikovvv.domain.model.BluetoothService
 import by.bashlikovvv.domain.model.NotificationTypes
 import by.bashlikovvv.domain.model.ReminderDescription
@@ -28,11 +30,18 @@ class BluetoothRepository(
     val connectedDevices = connectedDevicesLocalDataSource.getConnectedDevices()
 
     suspend fun connectFirstTime(device: BluetoothDevice): Boolean = withContext(ioDispatcher) {
-        support = MiBand5Support(
-            "0x2752cc9ca28106d7d9b128119c50c9f9",
-            GBDevice(device, DeviceType.MI_BAND_5),
-            queueEntitiesProvider
-        )
+        support = (DeviceSupportFactory.createDeviceSupport(
+            device = GBDevice(
+                device = device,
+                deviceType = getDeviceType(device)
+            ),
+            queueEntitiesProvider = queueEntitiesProvider
+        ) as? AbstractDeviceSupport)
+            ?.also { deviceSupport ->
+                if (deviceSupport is HuamiSupport) {
+                    deviceSupport.setKey("0xf6747305a017528f08141d2844db4210")
+                }
+            }
 
         val result = support?.connect() == true
         if (result) {
@@ -49,11 +58,19 @@ class BluetoothRepository(
 
     suspend fun connect(deviceAddress: String): Boolean = withContext(ioDispatcher) {
         try {
-            support = MiBand5Support(
-                "0x2752cc9ca28106d7d9b128119c50c9f9",
-                GBDevice(queueEntitiesProvider.getAdapter()?.getRemoteDevice(deviceAddress)!!, DeviceType.MI_BAND_5),
-                queueEntitiesProvider
-            )
+            val device = queueEntitiesProvider.getAdapter()?.getRemoteDevice(deviceAddress)!!
+            support = (DeviceSupportFactory.createDeviceSupport(
+                device = GBDevice(
+                    device = device,
+                    deviceType = getDeviceType(device)
+                ),
+                queueEntitiesProvider = queueEntitiesProvider
+            ) as? AbstractDeviceSupport)
+                ?.also { deviceSupport ->
+                    if (deviceSupport is HuamiSupport) {
+                        deviceSupport.setKey("0xf6747305a017528f08141d2844db4210")
+                    }
+                }
         } catch (_: Exception) {
             return@withContext false
         }
@@ -94,5 +111,12 @@ class BluetoothRepository(
             is NotificationTypes.TodoList -> HuamiNotificationType.TODO_LIST
         }
         support?.setVibrationProfile(bluetoothNotificationType, test, repeat, onOffSequence)
+    }
+
+    private fun getDeviceType(device: BluetoothDevice): DeviceType {
+        return when(bluetoothService.getDeviceType(device, null, null)) {
+            BluetoothDeviceType.Unknown -> DeviceType.UNKNOWN
+            BluetoothDeviceType.MiBand5 -> DeviceType.MI_BAND_5
+        }
     }
 }

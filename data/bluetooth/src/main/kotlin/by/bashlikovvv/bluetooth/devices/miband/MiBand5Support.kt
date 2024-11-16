@@ -15,10 +15,9 @@ import java.util.UUID
 import kotlin.experimental.or
 
 class MiBand5Support(
-    key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
-) : HuamiSupport(key ,device, provider) {
+) : HuamiSupport(device, provider) {
     override fun connect(): Boolean {
         repeat(5) {
             if (super.connect()) {
@@ -40,45 +39,6 @@ class MiBand5Support(
 
     override fun setReminders(reminders: List<Reminder>) {
         reminders.forEach { sendCreateReminderCommand(it.message, it.date) }
-    }
-
-//    test(HuamiNotificationType.FIND_BAND, true, (1).toShort(), intArrayOf(30, 35, 30, 35, 30, 35, 30, 800))
-    @Suppress("UNUSED")
-    private fun test(
-        notificationType: HuamiNotificationType,
-        test: Boolean,
-        repeat: Short,
-        onOffSequence: IntArray
-    ): ByteArray {
-        val maxTotalLength = 10_000
-        val onOff = truncateVibrationsOnOff(
-            repeat = repeat,
-            onOffSequence = onOffSequence,
-            limitMillis = maxTotalLength
-        )
-        val buf = ByteBuffer.allocate(3 + 2 * onOff.size)
-        buf.order(ByteOrder.LITTLE_ENDIAN)
-
-        buf.put((0x20).toByte())
-        buf.put(notificationType.code)
-        var flag = (onOff.size / 2).toByte()
-        flag = flag or (0x40).toByte()
-        if (test) {
-            flag = flag or (0x80).toByte()
-        }
-        buf.put(flag)
-        for (time in onOff) {
-            buf.putShort(time)
-        }
-
-        mQueue?.let { queueNotNull ->
-            val characteristic = getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
-            val tb = performInitialized("set vibration profile")
-            tb.writeToChunkedOld(characteristic, 2, buf.array())
-            tb.queue(queueNotNull)
-        }
-
-        return buf.array()
     }
 
     override fun setVibrationProfile(

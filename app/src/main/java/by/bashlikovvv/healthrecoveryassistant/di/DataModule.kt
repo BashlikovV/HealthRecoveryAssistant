@@ -9,6 +9,7 @@ import by.bashlikovvv.common.repository.HARFilesRepository
 import by.bashlikovvv.common.repository.RootRepository
 import by.bashlikovvv.common.repository.WearableRepository
 import by.bashlikovvv.common.worker.CustomWorkerFactory
+import by.bashlikovvv.common.worker.MiBand5Worker
 import by.bashlikovvv.common.worker.WearableEventsWorker
 import by.bashlikovvv.common.worker.WorkManagerSource
 import by.bashlikovvv.common.worker.WorkerFactoryProvider
@@ -40,9 +41,17 @@ val dataModule = module {
         )
     }
 
+    single<MiBand5Worker.Factory> {
+        MiBand5Worker.Factory.Base(
+            wearableLocalDataSource = get(),
+            bluetoothRepository = get(),
+        )
+    }
+
     single {
         CustomWorkerFactory(
             wearableEventsWorkerFactory = get(),
+            miBand5WorkerFactory = get(),
         )
     }
 
@@ -51,10 +60,6 @@ val dataModule = module {
         object : WorkerFactoryProvider {
             override fun provideFactory() = customWorkerFactory
         }
-    }
-
-    single {
-        WorkManagerSource(workerFactoryProvider = get())
     }
 
     single {
@@ -77,18 +82,24 @@ val dataModule = module {
     }
 
     single {
-        WearableRepository(
-            wearableEventsLocalDataSource = get(),
-            workManagerSource = get(),
-        )
-    }
-
-    single {
         BluetoothRepository(
             bluetoothService = get(),
             queueEntitiesProvider = get(),
             connectedDevicesLocalDataSource = get(),
             appDispatchers = get(),
+        )
+    }
+
+    single {
+        WorkManagerSource(
+            workerFactoryProvider = get(),
+        )
+    }
+
+    single {
+        WearableRepository(
+            wearableEventsLocalDataSource = get(),
+            workManagerSource = get(),
         )
     }
 }

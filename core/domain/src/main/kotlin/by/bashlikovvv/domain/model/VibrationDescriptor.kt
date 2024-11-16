@@ -2,11 +2,12 @@ package by.bashlikovvv.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@[Parcelize Serializable]
+@[Parcelize Serializable SerialName("VibrationDescriptor")]
 data class VibrationDescriptor(
-    val onOffSequence: IntArray,
-    val repeat: Short,
-    val alertLevel: Int,
+    @SerialName("onOffSequence") val onOffSequence: IntArray,
+    @SerialName("repeat") val repeat: Short,
+    @SerialName("alertLevel") val alertLevel: Int,
 ) : Parcelable

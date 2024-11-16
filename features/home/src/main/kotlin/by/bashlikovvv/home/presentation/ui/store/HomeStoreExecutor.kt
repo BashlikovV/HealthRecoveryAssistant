@@ -8,15 +8,12 @@ import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.common.repository.HARFilesRepository
 import by.bashlikovvv.common.repository.WearableRepository
 import by.bashlikovvv.domain.base.BaseResult
-import by.bashlikovvv.domain.model.ReminderDescription
 import by.bashlikovvv.domain.model.WearableEvents
 import by.bashlikovvv.home.domain.model.DevicesListItems
 import by.bashlikovvv.home.presentation.ui.store.HomeStore.*
 import by.bashlikovvv.home.presentation.ui.store.HomeStoreFactory.*
 import by.bashlikovvv.ui.base.BaseCoroutineExecutor
 import org.koin.core.component.inject
-import java.util.Calendar
-import java.util.TimeZone
 
 internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, Msg, Nothing>() {
     private val harFilesRepository: HARFilesRepository by inject()
@@ -28,7 +25,11 @@ internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, 
     override fun executeIntent(intent: Intent, getState: () -> State) {
         when (intent) {
             is Intent.OnActivityResult -> onActivityResultIntent(intent.activityResult)
-            is Intent.ScheduleFileData -> onScheduleFileDataIntent(intent.events, intent.context)
+            is Intent.ScheduleFileData -> onScheduleFileDataIntent(
+                device = intent.device,
+                result = intent.result,
+                context = intent.context
+            )
             is Intent.DeviceClick -> onDeviceClick(intent.device)
             is Intent.Vibrate -> vibrate()
         }
@@ -74,35 +75,40 @@ internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, 
 
     private fun openHARFile(uri: Uri) = launchIO(
         safeAction = {
-            when(val rResult = harFilesRepository.openHRAFile(uri)) {
-                is BaseResult.Success -> dispatchOnMainThread(
+            readHARFile(uri)?.let {
+                dispatchOnMainThread(
                     Msg.HRAFileData(
                         name = uri.lastPathSegment ?: "null",
-                        data = rResult.data
+                        data = it
                     )
                 )
-                is BaseResult.Failure -> Unit
             }
         }
     )
 
+    private suspend fun readHARFile(uri: Uri): WearableEvents? {
+        when(val rResult = harFilesRepository.openHRAFile(uri)) {
+            is BaseResult.Success -> return rResult.data
+            is BaseResult.Failure -> Unit
+        }
+
+        return null
+    }
+
     private fun onScheduleFileDataIntent(
-        events: WearableEvents,
+        device: DevicesListItems.Device,
+        result: ActivityResult,
         context: Context,
     ) {
-        launchIO {
-            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-            calendar.add(Calendar.MINUTE, 1)
-            bluetoothRepository.sendCreateReminderCommand(
-                ReminderDescription(
-                    message = "test msg",
-                    date = calendar.time
-                )
-            )
-        }
-//        launchIO(
-//            safeAction = { wearableRepository.scheduleHRAFileData(context, events) },
-//        )
+        launchIO(
+            safeAction = {
+                result.data?.data?.let { uri ->
+                    readHARFile(uri)?.let { events ->
+                        wearableRepository.scheduleHRAFileData(device.device, context, events)
+                    }
+                }
+            },
+        )
     }
 
     private fun vibrate() {

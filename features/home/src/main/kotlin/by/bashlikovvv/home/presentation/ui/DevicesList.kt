@@ -26,7 +26,7 @@ internal fun DevicesList(
     modifier: Modifier = Modifier,
     onDeviceClicked: (DevicesListItems.Device) -> Unit,
     onVibrate: () -> Unit,
-    onScheduleNotifications: () -> Unit,
+    onScheduleNotifications: (DevicesListItems.Device) -> Unit,
 ) {
     Box(
         modifier = modifier,
@@ -50,7 +50,7 @@ internal fun DevicesList(
                             isConnected = item.connected,
                             onClicked = { onDeviceClicked(item) },
                             onVibrate = onVibrate,
-                            onScheduleNotifications = onScheduleNotifications,
+                            onScheduleNotifications = { onScheduleNotifications(item) }
                         )
                     }
                 }

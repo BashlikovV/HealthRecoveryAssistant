@@ -43,7 +43,9 @@ internal fun AlertDialogScope.NotificationTypeDialogContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        var selectedItem by remember { mutableStateOf(notificationType) }
+        var selectedItem by remember(
+            key1 = notificationType,
+        ) { mutableStateOf(notificationType) }
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()

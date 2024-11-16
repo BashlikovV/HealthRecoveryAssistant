@@ -112,7 +112,7 @@ private fun LabelProcessionBlock(
 ) {
     LaunchedEffect(label) {
         when (label) {
-            Label.TurnOnBluetooth -> startActivityResultLauncher.launch(
+            is Label.TurnOnBluetooth -> startActivityResultLauncher.launch(
                 Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             )
             is Label.RequestPermission -> requestPermission(label.permission)

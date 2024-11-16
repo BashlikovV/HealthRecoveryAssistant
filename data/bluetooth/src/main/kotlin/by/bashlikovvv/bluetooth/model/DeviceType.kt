@@ -12,7 +12,7 @@ enum class DeviceType(val coordinatorClass: KClass<out DeviceCoordinator>) {
     fun getDeviceCoordinator(): DeviceCoordinator {
         return try {
             coordinatorClass.createInstance()
-        } catch (e: ReflectiveOperationException){
+        } catch (e: ReflectiveOperationException) {
             throw RuntimeException(e)
         }
     }

@@ -17,10 +17,11 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 abstract class HuamiSupport(
-    private val key: String,
     device: GBDevice,
     provider: QueueEntitiesProvider,
 ) : AbstractBtLEDeviceSupport(device, provider), Huami2021Handler {
+    private var key: String = ""
+
     protected open val authFlags: Byte = AUTH_BYTE
 
     private val cryptFlags: Byte = getCryptFlags()
@@ -148,6 +149,10 @@ abstract class HuamiSupport(
             builder.write(characteristicChunked2021Read, byteArrayOf(0x04, 0x00, handle ?: 0, 0x01, count ?: 0))
         } catch (_: Exception) {
         }
+    }
+
+    fun setKey(key: String) {
+        this.key = key
     }
 
     protected fun truncateVibrationsOnOff(
