@@ -22,6 +22,11 @@ interface ConnectedDevicesDao {
               FROM ${ConnectedDevices.TABLE_NAME};""")
     fun getDevices(): Flow<List<ConnectedDeviceEntity>>
 
+    @Query("""SELECT * 
+              FROM ${ConnectedDevices.TABLE_NAME} 
+              WHERE ${ConnectedDevices.COLUMN_ID} = :id;""")
+    suspend fun getDevice(id: Long): ConnectedDeviceEntity?
+
     @[
         Transaction
         Query("""DELETE 

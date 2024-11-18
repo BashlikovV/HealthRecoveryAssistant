@@ -65,10 +65,12 @@ class WearableEventsLocalDataSource(
         val mapper = WearableEventViewToWearableEventMapper()
 
         try {
-            BaseResult.Success(
-                wearableEventsDao.getWearableEventView()
-                    ?.let { mapper.mapFromEntity(it) }
-            )
+            var event = wearableEventsDao.getWearableEventView()
+            while (event != null && event.scheduledTime - System.currentTimeMillis() < 0) {
+                wearableEventsDao.removeLatestWearableEvent()
+                event = wearableEventsDao.getWearableEventView()
+            }
+            BaseResult.Success(event?.let { mapper.mapFromEntity(it) })
         } catch (e: IOException) {
             BaseResult.Failure(e)
         }

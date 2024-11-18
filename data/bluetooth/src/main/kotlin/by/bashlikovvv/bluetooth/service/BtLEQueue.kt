@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
+import android.util.Log
 import by.bashlikovvv.bluetooth.model.AbstractTransaction
 import by.bashlikovvv.bluetooth.model.GBDevice
 import by.bashlikovvv.bluetooth.model.GattCallback
@@ -48,14 +49,26 @@ class BtLEQueue(
                     val transaction = transactions.take()
                     if (transaction is Transaction) {
                         internalGattCallback.setTransactionGattCallback(transaction.callback)
+                        Log.i("MYTAG", "transaction: $transaction with size: ${transaction.actions.size}")
                         for (action in transaction.actions) {
+                            try {
+                                Thread.sleep(100)
+                            } catch (_: Exception) {
+                            }
+                            Log.i("MYTAG", "action: $action")
                             waitCharacteristic = action.characteristic
                             waitForActionResultLatch = CountDownLatch(1)
                             if (bluetoothGatt?.let { action.run(it) } == true) {
+                                Log.i("MYTAG", "action success")
                                 if (action.expectsResult()) {
+                                    Log.i("MYTAG", "action wait for result")
                                     waitForActionResultLatch?.await()
+                                    Log.i("MYTAG", "action result")
                                     waitForActionResultLatch = null
                                 }
+                            } else {
+                                bluetoothGatt?.let { action.run(it) } == true
+                                Log.i("MYTAG", "action failure, gattNotNull: ${bluetoothGatt != null}")
                             }
                         }
                     }
@@ -85,6 +98,11 @@ class BtLEQueue(
         }
         
         return bluetoothGatt?.connect() == true
+    }
+
+    @SuppressLint("MissingPermission")
+    fun discoverServices() {
+        bluetoothGatt?.discoverServices()
     }
 
     private val internalGattCallback = object : BluetoothGattCallback() {
@@ -125,7 +143,10 @@ class BtLEQueue(
             characteristics
                 .groupBy { it.uuid }
                 .ifEmpty { null }
-                ?.let { this@BtLEQueue.characteristics = it }
+                ?.let {
+                    val newMap = this@BtLEQueue.characteristics.toMutableMap().apply { putAll(it) }
+                    this@BtLEQueue.characteristics = newMap
+                }
         }
 
         override fun onCharacteristicRead(
@@ -211,9 +232,16 @@ class BtLEQueue(
     
     @SuppressLint("MissingPermission")
     fun getCharacteristic(uuid: UUID): BluetoothGattCharacteristic? {
-        return characteristics
+        var characteristic = this@BtLEQueue.characteristics
             .getOrElse(uuid) { null }
             ?.first()
+        var attemptCount = 0
+        while (characteristic == null && attemptCount < 5) {
+            attemptCount++
+            Thread.sleep(100)
+        }
+
+        return characteristic
     }
 
     fun insert(transaction: Transaction) {

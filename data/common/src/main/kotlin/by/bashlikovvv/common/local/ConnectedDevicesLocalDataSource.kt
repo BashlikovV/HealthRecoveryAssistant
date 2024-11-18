@@ -1,6 +1,5 @@
 package by.bashlikovvv.common.local
 
-import android.util.Log
 import by.bashlikovvv.database.dao.ConnectedDevicesDao
 import by.bashlikovvv.database.mapper.ConnectedDeviceEntityToBluetoothDeviceMapper
 import by.bashlikovvv.domain.base.AppDispatchers
@@ -22,7 +21,6 @@ class ConnectedDevicesLocalDataSource(
 
     suspend fun addConnectedDevice(device: BluetoothDevice): BaseResult<Long> = withContext(ioDispatcher) {
         try {
-            Log.i("MYTAG", "6")
             BaseResult.Success(connectedDevicesDao.addDevice(mapper.mapToEntity(device).copy(id = 0)))
         } catch (e: IOException) {
             BaseResult.Failure(e)
@@ -35,6 +33,17 @@ class ConnectedDevicesLocalDataSource(
                 .map { list -> list.map { mapper.mapFromEntity(it) } }
         } catch (_: IOException) {
             flowOf()
+        }
+    }
+
+    suspend fun getDeviceById(id: Long): BaseResult<BluetoothDevice?> = withContext(ioDispatcher) {
+        try {
+            BaseResult.Success(
+                connectedDevicesDao.getDevice(id)
+                    ?.let { mapper.mapFromEntity(it) }
+            )
+        } catch (e: IOException) {
+            BaseResult.Failure(e)
         }
     }
 

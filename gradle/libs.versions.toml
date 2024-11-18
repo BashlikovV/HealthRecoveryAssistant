@@ -8,8 +8,8 @@ espressoCore = "3.6.1"
 compose-grdle-plugin = "1.6.11"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.10.01"
-desugar_jdk_libs = "2.1.2"
+composeBom = "2024.11.00"
+desugar_jdk_libs = "2.1.3"
 mvikotlin = "3.3.0"
 decompose = "3.1.0"
 koin = "3.5.6"
@@ -20,6 +20,7 @@ kotlinx-serialization-json = "1.7.1"
 workRuntimeKtx = "2.10.0"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlin-reflext = "2.0.20"
+datastorePreferences = "1.1.1"
 
 [libraries]
 # Plugins for composite build
@@ -72,6 +73,8 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 
 # Kotlin reflect
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflext" }
+
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 
 [plugins]
 healthrecoveryassistant-android-application = { id = "healthrecoveryassistant.android.application", version = "unspecified" }

@@ -39,7 +39,7 @@ class BluetoothRepository(
         ) as? AbstractDeviceSupport)
             ?.also { deviceSupport ->
                 if (deviceSupport is HuamiSupport) {
-                    deviceSupport.setKey("0xf6747305a017528f08141d2844db4210")
+                    deviceSupport.setKey("0xde3ae3fbcc1e6d447864bcf607993fd2")
                 }
             }
 
@@ -68,7 +68,7 @@ class BluetoothRepository(
             ) as? AbstractDeviceSupport)
                 ?.also { deviceSupport ->
                     if (deviceSupport is HuamiSupport) {
-                        deviceSupport.setKey("0xf6747305a017528f08141d2844db4210")
+                        deviceSupport.setKey("0xde3ae3fbcc1e6d447864bcf607993fd2")
                     }
                 }
         } catch (_: Exception) {

@@ -30,8 +30,8 @@ class MiBand5Support(
 
     override fun onFindDevice(start: Boolean) {
         mQueue?.let { queueNotNull ->
-            val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_ALERT_LEVEL)
             val tb = performInitialized("find device")
+            val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_ALERT_LEVEL)
             tb.write(characteristics, if (start) byteArrayOf(3) else byteArrayOf(0))
             tb.queue(queueNotNull)
         }
@@ -69,8 +69,8 @@ class MiBand5Support(
         }
 
         mQueue?.let { queueNotNull ->
-            val characteristic = getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
             val tb = performInitialized("Sending configuration for option")
+            val characteristic = getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
             tb.writeToChunkedOld(characteristic, 2, buf.array())
             tb.queue(queueNotNull)
         }
@@ -93,8 +93,8 @@ class MiBand5Support(
             .put(0x00)
             .build()
         mQueue?.let { queueNotNull ->
-            val characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
             val tb = performInitialized("set reminder")
+            var characteristics = queueNotNull.getCharacteristic(UUID_CHARACTERISTIC_CHUNKED_TRANSFER)
             tb.writeToChunkedOld(characteristics, 2, reminderRepresentation)
             tb.queue(queueNotNull)
         }
