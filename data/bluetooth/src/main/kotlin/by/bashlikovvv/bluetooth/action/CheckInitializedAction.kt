@@ -1,5 +1,6 @@
 package by.bashlikovvv.bluetooth.action
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 import by.bashlikovvv.bluetooth.model.BtLEAction
 import by.bashlikovvv.bluetooth.model.GBDevice
@@ -15,7 +16,9 @@ class CheckInitializedAction : BtLEAction {
         return false
     }
 
+    @SuppressLint("MissingPermission")
     override fun run(gatt: BluetoothGatt): Boolean {
+        gatt.discoverServices()
         return !shouldAbort()
     }
 

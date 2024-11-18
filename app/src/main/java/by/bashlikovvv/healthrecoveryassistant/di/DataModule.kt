@@ -2,17 +2,15 @@ package by.bashlikovvv.healthrecoveryassistant.di
 
 import by.bashlikovvv.common.local.ConnectedDevicesLocalDataSource
 import by.bashlikovvv.common.local.FilesLocalDataSource
+import by.bashlikovvv.common.local.CurrentDeviceLocalDataStore
 import by.bashlikovvv.common.local.WearableEventsLocalDataSource
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.common.repository.HARFilesRepository
 import by.bashlikovvv.common.repository.RootRepository
 import by.bashlikovvv.common.repository.WearableRepository
-import by.bashlikovvv.common.worker.CustomWorkerFactory
-import by.bashlikovvv.common.worker.MiBand5Worker
-import by.bashlikovvv.common.worker.WearableEventsWorker
-import by.bashlikovvv.common.worker.WorkManagerSource
-import by.bashlikovvv.common.worker.WorkerFactoryProvider
+import by.bashlikovvv.domain.base.BaseResult
+import by.bashlikovvv.domain.model.BluetoothDevice
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -34,32 +32,12 @@ val dataModule = module {
         )
     }
 
-    single<WearableEventsWorker.Factory> {
-        WearableEventsWorker.Factory.Base(
-            wearableEventsLocalDataSource = get(),
-            wearableRemoteDataSource = get(),
+    single<CurrentDeviceLocalDataStore> {
+        CurrentDeviceLocalDataStore(
+            context = androidContext(),
+            appDispatchers = get(),
+            devicesLocalDataSource = get(),
         )
-    }
-
-    single<MiBand5Worker.Factory> {
-        MiBand5Worker.Factory.Base(
-            wearableLocalDataSource = get(),
-            bluetoothRepository = get(),
-        )
-    }
-
-    single {
-        CustomWorkerFactory(
-            wearableEventsWorkerFactory = get(),
-            miBand5WorkerFactory = get(),
-        )
-    }
-
-    factory<WorkerFactoryProvider> {
-        val customWorkerFactory: CustomWorkerFactory = get()
-        object : WorkerFactoryProvider {
-            override fun provideFactory() = customWorkerFactory
-        }
     }
 
     single {
@@ -91,15 +69,8 @@ val dataModule = module {
     }
 
     single {
-        WorkManagerSource(
-            workerFactoryProvider = get(),
-        )
-    }
-
-    single {
         WearableRepository(
             wearableEventsLocalDataSource = get(),
-            workManagerSource = get(),
         )
     }
 }

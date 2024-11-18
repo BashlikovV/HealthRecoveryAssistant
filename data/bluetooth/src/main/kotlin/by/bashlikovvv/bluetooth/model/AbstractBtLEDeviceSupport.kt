@@ -53,6 +53,7 @@ abstract class AbstractBtLEDeviceSupport(
     override fun performInitialized(taskName: String): TransactionBuilder {
         if (!isInitialized) {
             mQueue?.let { queueNotNull ->
+                queueNotNull.discoverServices()
                 val builder = createTransactionBuilder("Initialize device")
                 builder.add(CheckInitializedAction(device))
                 initializeDevice(builder).queue(queueNotNull)

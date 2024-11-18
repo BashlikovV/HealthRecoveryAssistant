@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -17,7 +16,6 @@ import by.bashlikovvv.common.worker.ForegroundService
 import by.bashlikovvv.devicesettings.presentation.ui.DeviceSettingsContent
 import by.bashlikovvv.discovery.presentation.ui.DiscoveryContent
 import by.bashlikovvv.home.presentation.ui.HomeContent
-import by.bashlikovvv.common.worker.ForegroundServiceContract
 import by.bashlikovvv.root.presentation.ui.component.RootComponent
 import by.bashlikovvv.root.presentation.ui.store.RootStore
 import by.bashlikovvv.ui.composable.ScreenContent
@@ -36,15 +34,10 @@ fun RootContent(
     ) { state, label ->
         LabelProcessionBlock(
             label = label,
-            foregroundServiceContract = component.foregroundServiceContract,
             onPermissionResult = { permission, granted ->
                 dispatchIntent(RootStore.Intent.OnPermissionResult(permission, granted))
             }
         )
-        val context = LocalContext.current
-        DisposableEffect(Unit) {
-            onDispose { component.foregroundServiceContract.unbind(context) }
-        }
         HealthRecoveryAssistantTheme(
             languageUiType = state.languageUiType
         ) {
@@ -72,7 +65,6 @@ fun RootContent(
 @Composable
 private fun LabelProcessionBlock(
     label: RootStore.Label?,
-    foregroundServiceContract: ForegroundServiceContract,
     onPermissionResult: (String, Boolean) -> Unit,
 ) {
     val requestPermissionsLauncher = rememberLauncherForActivityResult(
@@ -87,9 +79,11 @@ private fun LabelProcessionBlock(
             )
             is RootStore.Label.StartForegroundService -> {
                 Intent(context, ForegroundService::class.java).also { intent ->
-                    context.startService(intent)
+                    try {
+                        context.startService(intent)
+                    } catch (e: RuntimeException) {
+                    }
                 }
-                foregroundServiceContract.bind(context)
             }
             else -> Unit
         }

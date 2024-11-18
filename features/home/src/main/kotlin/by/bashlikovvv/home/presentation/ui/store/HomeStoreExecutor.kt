@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResult
+import by.bashlikovvv.common.local.CurrentDeviceLocalDataStore
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.common.repository.HARFilesRepository
 import by.bashlikovvv.common.repository.WearableRepository
@@ -22,6 +23,8 @@ internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, 
 
     private val bluetoothRepository: BluetoothRepository by inject()
 
+    private val currentDeviceLocalDataStore: CurrentDeviceLocalDataStore by inject()
+
     override fun executeIntent(intent: Intent, getState: () -> State) {
         when (intent) {
             is Intent.OnActivityResult -> onActivityResultIntent(intent.activityResult)
@@ -38,13 +41,17 @@ internal class HomeStoreExecutor : BaseCoroutineExecutor<Intent, Action, State, 
     override fun executeAction(action: Action, getState: () -> State) {
         when(action) {
             is Action.Initialize -> initialize()
-            is Action.InitializeWithHARFile -> openHARFile(Uri.parse(action.uri))
+            is Action.InitializeWithHARFile -> {
+                initialize()
+                openHARFile(Uri.parse(action.uri))
+            }
         }
     }
 
     private fun onDeviceClick(device: DevicesListItems.Device) {
         launchIO {
            if (bluetoothRepository.connect(device.address)) {
+               currentDeviceLocalDataStore.setCurrentDevice(device.device)
                dispatchOnMainThread(Msg.DeviceConnected(device))
            }
         }
