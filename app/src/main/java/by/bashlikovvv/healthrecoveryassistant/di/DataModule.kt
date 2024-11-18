@@ -1,16 +1,14 @@
 package by.bashlikovvv.healthrecoveryassistant.di
 
 import by.bashlikovvv.common.local.ConnectedDevicesLocalDataSource
-import by.bashlikovvv.common.local.FilesLocalDataSource
 import by.bashlikovvv.common.local.CurrentDeviceLocalDataStore
+import by.bashlikovvv.common.local.FilesLocalDataSource
 import by.bashlikovvv.common.local.WearableEventsLocalDataSource
 import by.bashlikovvv.common.remote.wearable.WearableRemoteDataSource
 import by.bashlikovvv.common.repository.BluetoothRepository
 import by.bashlikovvv.common.repository.HARFilesRepository
 import by.bashlikovvv.common.repository.RootRepository
 import by.bashlikovvv.common.repository.WearableRepository
-import by.bashlikovvv.domain.base.BaseResult
-import by.bashlikovvv.domain.model.BluetoothDevice
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
