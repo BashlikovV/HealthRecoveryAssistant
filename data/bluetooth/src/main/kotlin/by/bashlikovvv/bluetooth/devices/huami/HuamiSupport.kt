@@ -22,8 +22,6 @@ abstract class HuamiSupport(
 ) : AbstractBtLEDeviceSupport(device, provider), Huami2021Handler {
     private var key: String = ""
 
-    protected open val authFlags: Byte = AUTH_BYTE
-
     private val cryptFlags: Byte = getCryptFlags()
 
     private var needsAuth: Boolean = true
@@ -58,7 +56,7 @@ abstract class HuamiSupport(
                 if (characteristicChunked2021Write != null && characteristicChunked2021Read != null) {
                     InitOperation2021(
                         needsAuth = authenticate,
-                        authFlags = authFlags,
+                        authFlags = getAuthFlags(),
                         cryptFlags = cryptFlags,
                         support = this,
                         builder = builder,
@@ -70,7 +68,7 @@ abstract class HuamiSupport(
             } else {
                 InitOperation(
                     needsAuth = authenticate,
-                    authFlags = authFlags,
+                    authFlags = getAuthFlags(),
                     cryptFlags = cryptFlags,
                     support = this,
                     builder = builder,
@@ -104,6 +102,8 @@ abstract class HuamiSupport(
     }
 
     protected open fun getCryptFlags(): Byte = CRYPT_FLAGS
+
+    protected open fun getAuthFlags(): Byte = AUTH_BYTE
 
     fun enableNotifications(
         builder: TransactionBuilder,
@@ -285,7 +285,7 @@ abstract class HuamiSupport(
 
         val UUID_CHARACTERISTIC_WORKOUT = UUID.fromString("0000000f-0000-3512-2118-0009af100700")
 
-        val UUID_CHARACTERISTIC_CURRENT_TIME = UUID.fromString((String.format("0000%s-0000-1000-8000-00805f9b34fb", "2A2B")))
+        val UUID_CHARACTERISTIC_CURRENT_TIME = UUID.fromString((String.format(BASE_UUID, "2A2B")))
 
         val UUID_CHARACTERISTIC_NOTIFICATION = UUID.fromString(String.format(BASE_UUID, "FF03"))
 
