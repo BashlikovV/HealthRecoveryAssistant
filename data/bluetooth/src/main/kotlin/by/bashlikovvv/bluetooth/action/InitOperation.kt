@@ -77,6 +77,7 @@ open class InitOperation : AbstractBTLEOperation<HuamiSupport> {
                 )
 
                 val builder = createTransactionBuilder("Sending the encrypted random key to the device")
+                builder.setCallback(this)
                 builder.write(characteristic, responseValue)
                 support.setCurrentTimeWithService(builder)
                 support.performImmediately(builder)

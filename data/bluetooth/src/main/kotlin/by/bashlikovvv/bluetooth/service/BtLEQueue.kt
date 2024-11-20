@@ -49,7 +49,7 @@ class BtLEQueue(
                     val transaction = transactions.take()
                     if (transaction is Transaction) {
                         internalGattCallback.setTransactionGattCallback(transaction.callback)
-                        Log.i("MYTAG", "transaction: $transaction with size: ${transaction.actions.size}")
+                        Log.i("MYTAG", "transaction: ${transaction.taskName} with size: ${transaction.actions.size}")
                         for (action in transaction.actions) {
                             try {
                                 Thread.sleep(100)

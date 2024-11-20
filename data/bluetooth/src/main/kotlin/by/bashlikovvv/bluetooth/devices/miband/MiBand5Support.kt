@@ -106,6 +106,8 @@ class MiBand5Support(
 
     override fun getCryptFlags(): Byte = (0x80).toByte()
 
+    override fun getAuthFlags(): Byte = 0x00
+
     companion object {
         const val BASE_UUID = "0000%s-0000-1000-8000-00805f9b34fb"
         val UUID_CHARACTERISTIC_ALERT_LEVEL = UUID.fromString(String.format(BASE_UUID, "2A06"))
